@@ -1,0 +1,47 @@
+import { Switch, Route } from "wouter";
+import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { BottomNav, DesktopHeader } from "@/components/Navigation";
+
+import Home from "@/pages/Home";
+import ProductList from "@/pages/ProductList";
+import ProductDetail from "@/pages/ProductDetail";
+import ServiceList from "@/pages/ServiceList";
+import ServiceDetail from "@/pages/ServiceDetail";
+import CreateListing from "@/pages/CreateListing";
+import Profile from "@/pages/Profile";
+import NotFound from "@/pages/not-found";
+
+function Router() {
+  return (
+    <div className="min-h-screen bg-background">
+      <DesktopHeader />
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/buscar" component={ProductList} />
+        <Route path="/produto/:id" component={ProductDetail} />
+        <Route path="/servicos" component={ServiceList} />
+        <Route path="/servico/:id" component={ServiceDetail} />
+        <Route path="/anunciar" component={CreateListing} />
+        <Route path="/perfil" component={Profile} />
+        <Route component={NotFound} />
+      </Switch>
+      <BottomNav />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
