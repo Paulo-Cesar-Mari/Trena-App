@@ -3,11 +3,16 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
+import { setupAuth } from "./auth"; // <--- 1. IMPORTAÇÃO NOVA
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  
+  // 2. LIGANDO A AUTENTICAÇÃO (Obrigatorio ser a primeira coisa)
+  setupAuth(app);
+
   // Products
   app.get(api.products.list.path, async (req, res) => {
     const search = req.query.search as string | undefined;
@@ -117,7 +122,6 @@ async function seedDatabase() {
       description: "Pedreiro com 20 anos de experiência em alvenaria e acabamento.",
       location: "São Paulo, SP",
       contactInfo: "(11) 99999-9999",
-      rating: "4.9",
       image: "https://placehold.co/400x400?text=Pedreiro",
     });
     await storage.createService({
@@ -126,7 +130,6 @@ async function seedDatabase() {
       description: "Instalações elétricas residenciais e comerciais. Atendimento 24h.",
       location: "Curitiba, PR",
       contactInfo: "(41) 88888-8888",
-      rating: "5.0",
       image: "https://placehold.co/400x400?text=Eletricista",
     });
   }

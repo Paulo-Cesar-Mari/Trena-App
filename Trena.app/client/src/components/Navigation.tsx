@@ -39,18 +39,22 @@ export function BottomNav() {
   );
 }
 
-import logoUrl from "@/assets/logo.png";
-
 export function DesktopHeader() {
   const [location] = useLocation();
 
   return (
     <header className="hidden md:block sticky top-0 z-50 bg-secondary text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center space-x-3 cursor-pointer">
-            <img src={logoUrl} alt="TRENA Logo" className="h-10 w-auto" />
-            <span className="text-xl font-bold tracking-tight">TRENA</span>
+            <img 
+              src="/logo-trena.png" 
+              alt="TRENA Logo" 
+              className="h-14 w-14 object-contain" 
+            />
+            <span className="text-3xl font-bold tracking-tighter font-['Poppins']">
+              Trena
+            </span>
           </div>
         </Link>
 

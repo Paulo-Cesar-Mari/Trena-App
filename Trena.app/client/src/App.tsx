@@ -5,6 +5,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BottomNav, DesktopHeader } from "@/components/Navigation";
 
+// 1. IMPORTAR O CONTEXTO DE AUTENTICAÇÃO
+import { AuthProvider } from "./hooks/use-auth"; 
+
 import Home from "@/pages/Home";
 import ProductList from "@/pages/ProductList";
 import ProductDetail from "@/pages/ProductDetail";
@@ -13,6 +16,7 @@ import ServiceDetail from "@/pages/ServiceDetail";
 import CreateListing from "@/pages/CreateListing";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/not-found";
+import AuthPage from "./pages/auth-page";; // 2. IMPORTAR A PÁGINA DE LOGIN
 
 function Router() {
   return (
@@ -20,6 +24,10 @@ function Router() {
       <DesktopHeader />
       <Switch>
         <Route path="/" component={Home} />
+        
+        {/* 3. ADICIONAR A ROTA DE LOGIN */}
+        <Route path="/auth" component={AuthPage} />
+        
         <Route path="/buscar" component={ProductList} />
         <Route path="/produto/:id" component={ProductDetail} />
         <Route path="/servicos" component={ServiceList} />
@@ -37,8 +45,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Router />
+        {/* 4. ENVOLVER TUDO COM O AUTHPROVIDER */}
+        <AuthProvider>
+          <Toaster />
+          <Router />
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
