@@ -73,6 +73,7 @@ export async function seedDatabase() {
       image: `https://placehold.co/600x400?text=${encodeURIComponent(productTitles[i % productTitles.length])}`,
       location: randomStore.location || `${faker.location.city()}, ${faker.location.state({ abbreviated: true })}`,
       storeName: randomStore.name,
+      contactPhone: faker.string.numeric(11),
     });
   }
 
