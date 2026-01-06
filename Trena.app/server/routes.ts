@@ -3,17 +3,29 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { setupAuth } from "./auth"; // <--- 1. IMPORTAÇÃO NOVA
+import { setupAuth } from "./auth";
+import { seedDatabase } from "./seed-data";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
-  // 2. LIGANDO A AUTENTICAÇÃO (Obrigatorio ser a primeira coisa)
+  // Autenticação
   setupAuth(app);
 
-  // Products
+  // Rota para semear o banco de dados
+  app.get('/api/seed', async (req, res) => {
+    try {
+      await seedDatabase();
+      res.status(200).send('Banco de dados semeado com sucesso!');
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Erro ao semear o banco de dados.');
+    }
+  });
+
+  // Produtos
   app.get(api.products.list.path, async (req, res) => {
     const search = req.query.search as string | undefined;
     const category = req.query.category as string | undefined;
@@ -45,7 +57,7 @@ export async function registerRoutes(
     }
   });
 
-  // Services
+  // Serviços
   app.get(api.services.list.path, async (req, res) => {
     const search = req.query.search as string | undefined;
     const category = req.query.category as string | undefined;
@@ -77,60 +89,5 @@ export async function registerRoutes(
     }
   });
 
-  // Seed Data
-  await seedDatabase();
-
   return httpServer;
-}
-
-async function seedDatabase() {
-  const existingProducts = await storage.getProducts();
-  if (existingProducts.length === 0) {
-    // Seed Products
-    await storage.createProduct({
-      title: "Cimento Votoran 50kg",
-      description: "Cimento de alta qualidade para todas as obras.",
-      category: "Cimento",
-      price: "35.90",
-      location: "São Paulo, SP",
-      storeName: "Depósito do Zé",
-      image: "https://placehold.co/600x400?text=Cimento+Votoran",
-    });
-    await storage.createProduct({
-      title: "Tinta Suvinil Fosco Completo",
-      description: "Tinta acrílica fosca, cor Branco Neve, 18L.",
-      category: "Tinta",
-      price: "349.90",
-      location: "Rio de Janeiro, RJ",
-      storeName: "Casa da Cor",
-      image: "https://placehold.co/600x400?text=Tinta+Suvinil",
-    });
-    await storage.createProduct({
-      title: "Kit Ferramentas Básicas",
-      description: "Martelo, chaves de fenda, alicate e trena.",
-      category: "Ferramentas",
-      price: "89.90",
-      location: "Belo Horizonte, MG",
-      storeName: "Ferramentas & Cia",
-      image: "https://placehold.co/600x400?text=Kit+Ferramentas",
-    });
-    
-    // Seed Services
-    await storage.createService({
-      name: "João Silva",
-      serviceType: "Pedreiro",
-      description: "Pedreiro com 20 anos de experiência em alvenaria e acabamento.",
-      location: "São Paulo, SP",
-      contactInfo: "(11) 99999-9999",
-      image: "https://placehold.co/400x400?text=Pedreiro",
-    });
-    await storage.createService({
-      name: "Eletricista Rápido",
-      serviceType: "Eletricista",
-      description: "Instalações elétricas residenciais e comerciais. Atendimento 24h.",
-      location: "Curitiba, PR",
-      contactInfo: "(41) 88888-8888",
-      image: "https://placehold.co/400x400?text=Eletricista",
-    });
-  }
 }
