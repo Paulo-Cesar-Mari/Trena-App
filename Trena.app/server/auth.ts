@@ -5,7 +5,8 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
-import { User as SelectUser } from "@shared/schema";
+import { z } from "zod";
+import { User as SelectUser, insertUserSchema } from "@shared/schema";
 
 const scryptAsync = promisify(scrypt);
 
@@ -59,15 +60,30 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      const existingUser = await storage.getUserByUsername(req.body.username);
-      if (existingUser) {
-        return res.status(400).send("O nome de usuário já existe");
+      const validation = insertUserSchema.safeParse(req.body);
+      if (!validation.success) {
+        const { errors } = validation.error;
+        return res.status(400).json({
+          message: "Dados de registro inválidos.",
+          errors: errors.map(e => ({
+            field: e.path.join('.'),
+            message: e.message,
+          }))
+        });
       }
 
-      const hashedPassword = await hashPassword(req.body.password);
+      const { username, password, ...restData } = validation.data;
+
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(409).json({ message: "O nome de usuário já existe." });
+      }
+
+      const hashedPassword = await hashPassword(password);
       const user = await storage.createUser({
-        ...req.body,
+        username,
         password: hashedPassword,
+        ...restData,
       });
 
       req.login(user, (err) => {
@@ -75,6 +91,12 @@ export function setupAuth(app: Express) {
         res.status(201).json(user);
       });
     } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
       next(err);
     }
   });
