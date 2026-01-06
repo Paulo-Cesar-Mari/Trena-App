@@ -89,5 +89,14 @@ export async function registerRoutes(
     }
   });
 
+  // User Profile
+  app.get(api.users.getProfile.path, async (req, res) => {
+    const profile = await storage.getUserProfile(Number(req.params.id));
+    if (!profile) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+    res.json(profile);
+  });
+
   return httpServer;
 }

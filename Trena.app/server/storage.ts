@@ -15,6 +15,7 @@ import { eq, ilike, or } from "drizzle-orm";
 export interface IStorage {
   // Users
   getUser(id: number): Promise<User | undefined>;
+  getUserProfile(id: number): Promise<{ user: User, products: Product[] } | undefined>;
   createUser(user: InsertUser): Promise<User>;
 
   // Products
@@ -32,6 +33,20 @@ export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
+  }
+
+  async getUserProfile(id: number): Promise<{ user: User, products: Product[] } | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    if (!user) {
+      return undefined;
+    }
+
+    const userProducts = await db.select().from(products).where(eq(products.sellerId, id));
+
+    return {
+      user,
+      products: userProducts,
+    };
   }
 
   async createUser(user: InsertUser): Promise<User> {
