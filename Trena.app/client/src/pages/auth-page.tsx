@@ -19,41 +19,63 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
-      <div className="hidden bg-muted lg:block">
-        <img
-          src="https://images.unsplash.com/photo-1581092448348-7d57b2839b86"
-          alt="Image"
-          width="1920"
-          height="1080"
-          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
-      </div>
-      <div className="flex items-center justify-center py-12">
-        <div className="mx-auto grid w-[350px] gap-6">
-          <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold">
-              {isLogin ? "Bem-vindo de volta" : "Crie sua conta no Trena"}
+    <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+
+      {/* Coluna da Esquerda (Formulário) */}
+      <div className="lg:p-8 flex items-center justify-center">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
+
+          {/* Cabeçalho */}
+          <div className="flex flex-col space-y-2 text-center items-center">
+            <img
+              src="/logo-trena.png"
+              alt="TRENA Logo"
+              className="h-20 w-20 object-contain mb-4"
+            />
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {isLogin ? "Acesse sua conta" : "Crie sua conta no Trena"}
             </h1>
-            <p className="text-balance text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {isLogin 
-                ? "Entre com suas credenciais para acessar" 
-                : "Junte-se ao marketplace da construção civil"}
+                ? "Bem-vindo de volta! Digite suas credenciais."
+                : "Preencha os campos para se cadastrar."}
             </p>
           </div>
 
+          {/* Formulário */}
           <AuthForm isLogin={isLogin} />
 
-          <div className="mt-4 text-center text-sm">
+          {/* Link para trocar */}
+          <p className="px-8 text-center text-sm text-muted-foreground">
+            {isLogin ? "Não tem uma conta? " : "Já tem uma conta? "}
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="underline"
+              className="underline underline-offset-4 hover:text-primary"
             >
-              {isLogin
-                ? "Não tem uma conta? Cadastre-se"
-                : "Já tem uma conta? Fazer login"}
+              {isLogin ? "Cadastre-se" : "Fazer login"}
             </button>
-          </div>
+          </p>
+        </div>
+      </div>
+
+      {/* Coluna da Direita (Imagem) */}
+      <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
+        <div className="absolute inset-0 bg-secondary" />
+        <div className="relative z-20 flex items-center text-lg font-medium">
+          <img
+              src="/logo-trena.png"
+              alt="TRENA Logo"
+              className="h-12 w-12 object-contain mr-3"
+            />
+          Trena
+        </div>
+        <div className="relative z-20 mt-auto">
+          <blockquote className="space-y-2">
+            <p className="text-lg">
+              “A ferramenta certa para a sua obra. O marketplace da construção civil que conecta você aos melhores produtos e serviços.”
+            </p>
+            <footer className="text-sm">Equipe Trena</footer>
+          </blockquote>
         </div>
       </div>
     </div>
@@ -82,65 +104,68 @@ function AuthForm({ isLogin }: { isLogin: boolean }) {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       
       {/* Nome (Só aparece no cadastro) */}
       {!isLogin && (
-        <div className="space-y-2">
-          <label className="text-sm font-medium leading-none">Nome Completo</label>
+        <div className="grid gap-2">
+          <label className="text-sm font-medium leading-none sr-only" htmlFor="name">Nome Completo</label>
           <input
+            id="name"
+            placeholder="Nome Completo"
             {...form.register("name")}
-            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="Ex: João da Silva"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
         </div>
       )}
 
       {/* Usuário */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium leading-none">Nome de Usuário</label>
+      <div className="grid gap-2">
+        <label className="text-sm font-medium leading-none sr-only" htmlFor="username">Usuário</label>
         <input
+          id="username"
+          placeholder="Nome de usuário"
           {...form.register("username")}
-          className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          placeholder="seu_usuario"
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
       </div>
 
       {/* Senha */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium leading-none">Senha</label>
+      <div className="grid gap-2">
+        <label className="text-sm font-medium leading-none sr-only" htmlFor="password">Senha</label>
         <input
-          {...form.register("password")}
+          id="password"
           type="password"
-          className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          placeholder="••••••••"
+          placeholder="Senha"
+          {...form.register("password")}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
       </div>
 
       {/* Seleção de Tipo de Conta (Só no cadastro) */}
       {!isLogin && (
         <div className="space-y-3 pt-2">
-          <label className="text-sm font-medium leading-none">Eu quero:</label>
-          <div className="grid grid-cols-3 gap-2">
+          <label className="text-sm font-medium leading-none text-muted-foreground">Eu quero:</label>
+          <div className="grid grid-cols-3 gap-3">
             <label className="cursor-pointer">
               <input type="radio" value="consumer" {...form.register("role")} className="peer sr-only" />
-              <div className="rounded-md border-2 border-gray-200 p-2 text-center hover:bg-gray-50 peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+              <div className="rounded-md border-2 border-muted bg-popover p-3 text-center hover:bg-accent hover:text-accent-foreground peer-checked:border-primary peer-checked:bg-primary/10 transition-all">
+                <User className="w-5 h-5 mx-auto mb-1" />
                 <span className="text-xs font-bold block">Comprar</span>
-                <span className="text-[10px] text-gray-500">Sou Cliente</span>
               </div>
             </label>
             <label className="cursor-pointer">
               <input type="radio" value="professional" {...form.register("role")} className="peer sr-only" />
-              <div className="rounded-md border-2 border-gray-200 p-2 text-center hover:bg-gray-50 peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+              <div className="rounded-md border-2 border-muted bg-popover p-3 text-center hover:bg-accent hover:text-accent-foreground peer-checked:border-primary peer-checked:bg-primary/10 transition-all">
+                <HardHat className="w-5 h-5 mx-auto mb-1" />
                 <span className="text-xs font-bold block">Trabalhar</span>
-                <span className="text-[10px] text-gray-500">Sou Prestador</span>
               </div>
             </label>
             <label className="cursor-pointer">
               <input type="radio" value="store" {...form.register("role")} className="peer sr-only" />
-              <div className="rounded-md border-2 border-gray-200 p-2 text-center hover:bg-gray-50 peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+              <div className="rounded-md border-2 border-muted bg-popover p-3 text-center hover:bg-accent hover:text-accent-foreground peer-checked:border-primary peer-checked:bg-primary/10 transition-all">
+                <Store className="w-5 h-5 mx-auto mb-1" />
                 <span className="text-xs font-bold block">Vender</span>
-                <span className="text-[10px] text-gray-500">Sou Lojista</span>
               </div>
             </label>
           </div>
@@ -150,7 +175,7 @@ function AuthForm({ isLogin }: { isLogin: boolean }) {
       <button
         type="submit"
         disabled={loginMutation.isPending || registerMutation.isPending}
-        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-secondary bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors disabled:opacity-50"
+        className="w-full btn-primary flex items-center justify-center disabled:opacity-50"
       >
         {(loginMutation.isPending || registerMutation.isPending) && (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

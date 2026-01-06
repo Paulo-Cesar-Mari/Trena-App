@@ -116,3 +116,10 @@ export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type InsertPortfolioItem = z.infer<typeof insertPortfolioItemSchema>;
+
+// --- 6. SESSÕES DE USUÁRIO (Para Autenticação) ---
+export const userSessions = pgTable("user_sessions", {
+  sid: text("sid").primaryKey(),
+  sess: text("sess").notNull(),
+  expire: timestamp("expire").notNull(),
+});
