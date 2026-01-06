@@ -75,6 +75,19 @@ export const api = {
       },
     },
   },
+  users: {
+    getProfile: {
+      method: 'GET' as const,
+      path: '/api/users/:id/profile',
+      responses: {
+        200: z.object({
+          user: z.custom<typeof users.$inferSelect>(),
+          products: z.array(z.custom<typeof products.$inferSelect>()),
+        }),
+        404: errorSchemas.notFound,
+      },
+    },
+  },
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {
