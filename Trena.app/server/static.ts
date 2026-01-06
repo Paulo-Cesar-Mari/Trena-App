@@ -10,6 +10,13 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // Serve the uploads directory
+  const uploadsPath = path.resolve(__dirname, "uploads");
+  if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath);
+  }
+  app.use("/uploads", express.static(uploadsPath));
+
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist

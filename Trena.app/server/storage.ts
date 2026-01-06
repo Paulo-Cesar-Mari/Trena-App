@@ -3,19 +3,27 @@ import {
   products,
   services,
   users,
+  portfolioItems,
   type InsertProduct,
   type InsertService,
   type InsertUser,
+  type InsertPortfolioItem,
   type Product,
   type Service,
   type User,
+  type PortfolioItem,
 } from "@shared/schema";
 import { eq, ilike, or } from "drizzle-orm";
 
 export interface IStorage {
   // Users
   getUser(id: number): Promise<User | undefined>;
-  getUserProfile(id: number): Promise<{ user: User, products: Product[] } | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserProfile(
+    id: number
+  ): Promise<
+    { user: User; products: Product[]; portfolioItems: PortfolioItem[] } | undefined
+  >;
   createUser(user: InsertUser): Promise<User>;
 
   // Products
@@ -27,6 +35,10 @@ export interface IStorage {
   getServices(search?: string, category?: string): Promise<Service[]>;
   getService(id: number): Promise<Service | undefined>;
   createService(service: InsertService): Promise<Service>;
+
+  // Portfolio
+  createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem>;
+  getPortfolioItems(userId: number): Promise<PortfolioItem[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -35,17 +47,35 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async getUserProfile(id: number): Promise<{ user: User, products: Product[] } | undefined> {
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, username));
+    return user;
+  }
+
+  async getUserProfile(
+    id: number
+  ): Promise<
+    { user: User; products: Product[]; portfolioItems: PortfolioItem[] } | undefined
+  > {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     if (!user) {
       return undefined;
     }
 
-    const userProducts = await db.select().from(products).where(eq(products.sellerId, id));
+    const userProducts = await db
+      .select()
+      .from(products)
+      .where(eq(products.sellerId, id));
+
+    const userPortfolioItems = await this.getPortfolioItems(id);
 
     return {
       user,
       products: userProducts,
+      portfolioItems: userPortfolioItems,
     };
   }
 
@@ -56,7 +86,7 @@ export class DatabaseStorage implements IStorage {
 
   async getProducts(search?: string, category?: string): Promise<Product[]> {
     let query = db.select().from(products);
-    
+
     if (search) {
       const searchLower = `%${search.toLowerCase()}%`;
       query.where(
@@ -75,12 +105,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    const [product] = await db.select().from(products).where(eq(products.id, id));
+    const [product] = await db
+      .select()
+      .from(products)
+      .where(eq(products.id, id));
     return product;
   }
 
   async createProduct(product: InsertProduct): Promise<Product> {
-    const [newProduct] = await db.insert(products).values(product).returning();
+    const [newProduct] = await db
+      .insert(products)
+      .values(product)
+      .returning();
     return newProduct;
   }
 
@@ -97,7 +133,7 @@ export class DatabaseStorage implements IStorage {
         )
       );
     }
-    
+
     if (category) {
       query.where(eq(services.serviceType, category));
     }
@@ -106,13 +142,32 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getService(id: number): Promise<Service | undefined> {
-    const [service] = await db.select().from(services).where(eq(services.id, id));
+    const [service] = await db
+      .select()
+      .from(services)
+      .where(eq(services.id, id));
     return service;
   }
 
   async createService(service: InsertService): Promise<Service> {
     const [newService] = await db.insert(services).values(service).returning();
     return newService;
+  }
+
+  // Portfolio
+  async createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem> {
+    const [newPortfolioItem] = await db
+      .insert(portfolioItems)
+      .values(item)
+      .returning();
+    return newPortfolioItem;
+  }
+
+  async getPortfolioItems(userId: number): Promise<PortfolioItem[]> {
+    return await db
+      .select()
+      .from(portfolioItems)
+      .where(eq(portfolioItems.userId, userId));
   }
 }
 
