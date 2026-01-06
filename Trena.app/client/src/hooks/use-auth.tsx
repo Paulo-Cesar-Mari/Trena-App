@@ -4,6 +4,7 @@ import { insertUserSchema, User as SelectUser } from "@shared/schema";
 import { apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { useLocation } from "wouter";
 
 // Tipos para ajudar o TypeScript
 type InsertUser = z.infer<typeof insertUserSchema>;
@@ -21,6 +22,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   // 1. Busca o usuário atual (Sessão)
   const {
@@ -44,11 +46,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async (credentials: Pick<InsertUser, "username" | "password">) => {
       const res = await apiRequest("POST", "/api/login", credentials);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Credenciais inválidas");
+      }
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({ title: "Bem-vindo!", description: "Login realizado com sucesso." });
+
+      // Redireciona para a página inicial
+      setLocation("/");
     },
     onError: (error: Error) => {
       toast({
@@ -63,11 +72,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
       const res = await apiRequest("POST", "/api/register", credentials);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Não foi possível criar a conta");
+      }
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({ title: "Conta criada!", description: "Bem-vindo ao Trena." });
+
+      // Redireciona para a página inicial
+      setLocation("/");
     },
     onError: (error: Error) => {
       toast({

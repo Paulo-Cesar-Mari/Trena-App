@@ -44,7 +44,7 @@ export default function Profile() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center p-4">
                 <Frown className="w-16 h-16 text-red-500 mb-4" />
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Oops! Algo deu errado.</h2>
                 <p className="text-gray-600">Não foi possível carregar seu perfil. Tente novamente mais tarde.</p>
@@ -57,15 +57,15 @@ export default function Profile() {
       {/* Header */}
       <div className="bg-secondary pt-12 pb-24 px-4 sm:px-6 rounded-b-[2.5rem] relative overflow-hidden">
         <div className="relative z-10 flex items-center gap-4 max-w-4xl mx-auto">
-          <div className="w-20 h-20 rounded-full border-4 border-white/20 bg-white flex items-center justify-center overflow-hidden">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white/20 bg-white flex items-center justify-center overflow-hidden">
             {user?.avatar ? (
                <img src={user.avatar} alt="Perfil" className="w-full h-full object-cover" />
             ) : (
-               <User className="w-10 h-10 text-gray-300" />
+               <User className="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" />
             )}
           </div>
           <div className="text-white">
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-xl sm:text-2xl font-bold">
               Olá, {user ? user.name : "Visitante"}
             </h1>
             <p className="text-white/60 text-sm flex items-center gap-2">
@@ -79,23 +79,23 @@ export default function Profile() {
         <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
       </div>
 
-      {/* Menu Cards */}
+      {/* Content */}
       <div className="px-4 -mt-16 relative z-20 space-y-4 max-w-4xl mx-auto">
         {/* Stats Card */}
-        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 flex justify-around">
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-around">
           <StatBox label="Anúncios" value={profileData?.products?.length || 0} />
           <StatBox label="Favoritos" value={profileData?.favorites?.length || 0} />
           <StatBox label="Avaliações" value={0} />
         </div>
 
         <Tabs.Root defaultValue={user?.role === 'store' ? 'listings' : 'favorites'} className="pt-4">
-          <Tabs.List className="flex gap-4 border-b border-gray-200">
+          <Tabs.List className="flex gap-2 sm:gap-4 border-b border-gray-200">
             {user?.role === 'store' && (
-              <Tabs.Trigger value="listings" className="pb-3 px-2 font-semibold text-gray-500 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary transition-colors">
+              <Tabs.Trigger value="listings" className="pb-3 px-2 text-sm sm:text-base font-semibold text-gray-500 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary transition-colors">
                 Meus Anúncios
               </Tabs.Trigger>
             )}
-            <Tabs.Trigger value="favorites" className="pb-3 px-2 font-semibold text-gray-500 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary transition-colors">
+            <Tabs.Trigger value="favorites" className="pb-3 px-2 text-sm sm:text-base font-semibold text-gray-500 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary transition-colors">
               Favoritos
             </Tabs.Trigger>
           </Tabs.List>
@@ -127,17 +127,17 @@ const UserListings = ({ products }: { products: Product[] }) => {
 
     if (products.length === 0) {
         return (
-            <div className="text-center bg-gray-50 rounded-2xl p-8 sm:p-12">
+            <div className="text-center bg-gray-50 rounded-2xl p-6 sm:p-12">
                 <div className="w-16 h-16 bg-white border border-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Package className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-800">Você ainda não tem anúncios</h3>
-                <p className="text-gray-500 max-w-xs mx-auto mt-2 mb-6">
+                <p className="text-gray-500 text-sm sm:text-base max-w-xs mx-auto mt-2 mb-6">
                     Que tal começar a vender? Crie seu primeiro anúncio e alcance milhares de compradores.
                 </p>
                 <button
-                    onClick={() => setLocation('/create-listing')}
-                    className="bg-primary text-primary-foreground font-bold py-3 px-6 rounded-full hover:bg-primary/90 transition-transform transform hover:scale-105"
+                    onClick={() => setLocation('/anunciar')}
+                    className="btn-primary"
                 >
                     Criar meu primeiro anúncio
                 </button>
@@ -146,7 +146,7 @@ const UserListings = ({ products }: { products: Product[] }) => {
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             {products.map(product => (
                 <ProductCard key={product.id} product={product} />
             ))}
@@ -159,17 +159,17 @@ const UserFavorites = ({ products }: { products: Product[] }) => {
 
     if (products.length === 0) {
         return (
-            <div className="text-center bg-gray-50 rounded-2xl p-8 sm:p-12">
+            <div className="text-center bg-gray-50 rounded-2xl p-6 sm:p-12">
                 <div className="w-16 h-16 bg-white border border-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Heart className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-800">Sua lista de favoritos está vazia</h3>
-                <p className="text-gray-500 max-w-xs mx-auto mt-2 mb-6">
+                <p className="text-gray-500 text-sm sm:text-base max-w-xs mx-auto mt-2 mb-6">
                     Explore o marketplace e adicione produtos que você amou para vê-los aqui.
                 </p>
                 <button
-                    onClick={() => setLocation('/')}
-                    className="bg-primary text-primary-foreground font-bold py-3 px-6 rounded-full hover:bg-primary/90 transition-transform transform hover:scale-105"
+                    onClick={() => setLocation('/buscar')}
+                    className="btn-primary"
                 >
                     Explorar o marketplace
                 </button>
@@ -178,7 +178,7 @@ const UserFavorites = ({ products }: { products: Product[] }) => {
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             {products.map(product => (
                 <ProductCard key={product.id} product={product} />
             ))}
@@ -187,26 +187,26 @@ const UserFavorites = ({ products }: { products: Product[] }) => {
 }
 
 const StatBox = ({ label, value }: { label: string; value: number | string }) => (
-    <div className="text-center flex-1">
-        <span className="block text-2xl font-bold text-primary">{value}</span>
+    <div className="text-center flex-1 px-1">
+        <span className="block text-xl sm:text-2xl font-bold text-primary">{value}</span>
         <span className="text-xs text-gray-500 font-medium">{label}</span>
     </div>
 );
 
 const ProfileLoadingSkeleton = () => (
     <div className="pb-24 min-h-screen bg-gray-50 animate-pulse">
-      <div className="bg-secondary pt-12 pb-24 px-6 rounded-b-[2.5rem] relative">
+      <div className="bg-secondary pt-12 pb-24 px-4 sm:px-6 rounded-b-[2.5rem] relative">
         <div className="flex items-center gap-4 max-w-4xl mx-auto">
-          <div className="w-20 h-20 rounded-full bg-white/20"></div>
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20"></div>
           <div>
-            <div className="h-8 w-40 bg-white/20 rounded-md mb-2"></div>
+            <div className="h-6 sm:h-8 w-40 bg-white/20 rounded-md mb-2"></div>
             <div className="h-4 w-32 bg-white/20 rounded-md"></div>
           </div>
         </div>
       </div>
       <div className="px-4 -mt-16 relative z-20 space-y-4 max-w-4xl mx-auto">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-24"></div>
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-96"></div>
+        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 h-20 sm:h-24"></div>
+        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 h-96"></div>
       </div>
     </div>
   );
