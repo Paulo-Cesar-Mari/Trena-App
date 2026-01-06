@@ -81,6 +81,15 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// --- 5. PORTFÓLIO (Para Lojistas e Prestadores) ---
+export const portfolioItems = pgTable("portfolio_items", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id), // Quem é o dono do portfólio
+  imageUrl: text("image_url").notNull(), // Onde a imagem está (URL)
+  caption: text("caption"), // Uma legenda para a foto
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // --- SCHEMAS E TIPOS ---
 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
@@ -90,6 +99,7 @@ export const insertServiceSchema = createInsertSchema(services).omit({ id: true,
 export const insertFavoriteSchema = createInsertSchema(favorites).omit({ id: true });
 export const insertReviewSchema = createInsertSchema(reviews).omit({ id: true, createdAt: true });
 export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, createdAt: true });
+export const insertPortfolioItemSchema = createInsertSchema(portfolioItems).omit({ id: true, createdAt: true });
 
 export type User = typeof users.$inferSelect;
 export type Product = typeof products.$inferSelect;
@@ -97,6 +107,7 @@ export type Service = typeof services.$inferSelect;
 export type Favorite = typeof favorites.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
 export type Message = typeof messages.$inferSelect;
+export type PortfolioItem = typeof portfolioItems.$inferSelect;
 // --- TIPOS DE INSERÇÃO (Adicione isto no final do arquivo) ---
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
@@ -104,3 +115,4 @@ export type InsertService = z.infer<typeof insertServiceSchema>;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type InsertPortfolioItem = z.infer<typeof insertPortfolioItemSchema>;
