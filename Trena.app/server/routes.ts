@@ -5,6 +5,7 @@ import { api } from "@shared/routes";
 import { z } from "zod";
 import { setupAuth } from "./auth";
 import { seedDatabase } from "./seed-data";
+import { User as SelectUser } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 
@@ -105,6 +106,18 @@ export async function registerRoutes(
   // User Profile
   app.get(api.users.getProfile.path, async (req, res) => {
     const profile = await storage.getUserProfile(Number(req.params.id));
+    if (!profile) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+    res.json(profile);
+  });
+
+  app.get(api.users.me.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const profile = await storage.getCurrentUserProfile(user.id);
     if (!profile) {
       return res.status(404).json({ message: "Usuário não encontrado" });
     }

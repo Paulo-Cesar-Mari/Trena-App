@@ -87,6 +87,17 @@ export const api = {
         404: errorSchemas.notFound,
       },
     },
+    me: {
+      method: "GET" as const,
+      path: "/api/me",
+      responses: {
+        200: z.object({
+          user: z.custom<typeof users.$inferSelect>(),
+          products: z.array(z.custom<typeof products.$inferSelect>()),
+          favorites: z.array(z.custom<typeof products.$inferSelect>()),
+        }),
+      },
+    },
   },
 };
 

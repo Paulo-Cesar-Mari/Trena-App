@@ -1,4 +1,6 @@
-import { db } from "./db";
+import { db, pool } from "./db";
+import connectPgSimple from "connect-pg-simple";
+import session from "express-session";
 import {
   products,
   services,
@@ -12,6 +14,7 @@ import {
   type Service,
   type User,
   type PortfolioItem,
+  favorites,
 } from "@shared/schema";
 import { eq, ilike, or } from "drizzle-orm";
 
@@ -23,6 +26,12 @@ export interface IStorage {
     id: number
   ): Promise<
     { user: User; products: Product[]; portfolioItems: PortfolioItem[] } | undefined
+  >;
+  getCurrentUserProfile(
+    id: number
+  ): Promise<
+    | { user: User; products: Product[]; favorites: Product[] }
+    | undefined
   >;
   createUser(user: InsertUser): Promise<User>;
 
@@ -39,9 +48,22 @@ export interface IStorage {
   // Portfolio
   createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem>;
   getPortfolioItems(userId: number): Promise<PortfolioItem[]>;
+
+  // Session
+  sessionStore: session.Store;
 }
 
 export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+
+  constructor() {
+    const PgSession = connectPgSimple(session);
+    this.sessionStore = new PgSession({
+      pool: pool,
+      tableName: "user_sessions",
+    });
+  }
+
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
@@ -76,6 +98,35 @@ export class DatabaseStorage implements IStorage {
       user,
       products: userProducts,
       portfolioItems: userPortfolioItems,
+    };
+  }
+
+  async getCurrentUserProfile(
+    id: number
+  ): Promise<
+    | { user: User; products: Product[]; favorites: Product[] }
+    | undefined
+  > {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    if (!user) {
+      return undefined;
+    }
+
+    const userProducts = await db
+      .select()
+      .from(products)
+      .where(eq(products.sellerId, id));
+
+    const userFavorites = await db
+      .select()
+      .from(favorites)
+      .where(eq(favorites.userId, id))
+      .leftJoin(products, eq(favorites.productId, products.id));
+
+    return {
+      user,
+      products: userProducts,
+      favorites: userFavorites.map(f => f.products).filter(p => p !== null) as Product[],
     };
   }
 
