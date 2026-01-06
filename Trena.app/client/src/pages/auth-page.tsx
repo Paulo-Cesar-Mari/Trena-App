@@ -19,18 +19,23 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
-      {/* Lado Esquerdo: Formulário */}
-      <div className="flex flex-col justify-center px-8 py-12 lg:px-16 bg-white">
-        <div className="max-w-md mx-auto w-full space-y-8">
-          <div className="text-center lg:text-left">
-            <h1 className="text-4xl font-bold text-secondary font-['Poppins'] tracking-tight">
-              TRENA
-            </h1>
-            <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
+    <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
+      <div className="hidden bg-muted lg:block">
+        <img
+          src="https://images.unsplash.com/photo-1581092448348-7d57b2839b86"
+          alt="Image"
+          width="1920"
+          height="1080"
+          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        />
+      </div>
+      <div className="flex items-center justify-center py-12">
+        <div className="mx-auto grid w-[350px] gap-6">
+          <div className="grid gap-2 text-center">
+            <h1 className="text-3xl font-bold">
               {isLogin ? "Bem-vindo de volta" : "Crie sua conta no Trena"}
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            </h1>
+            <p className="text-balance text-muted-foreground">
               {isLogin 
                 ? "Entre com suas credenciais para acessar" 
                 : "Junte-se ao marketplace da construção civil"}
@@ -39,10 +44,10 @@ export default function AuthPage() {
 
           <AuthForm isLogin={isLogin} />
 
-          <div className="text-center mt-4">
+          <div className="mt-4 text-center text-sm">
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="text-sm font-medium text-primary hover:underline"
+              className="underline"
             >
               {isLogin
                 ? "Não tem uma conta? Cadastre-se"
@@ -50,37 +55,6 @@ export default function AuthPage() {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Lado Direito: Capa Visual */}
-      <div className="hidden lg:flex flex-col justify-center px-12 bg-secondary text-white relative overflow-hidden">
-        <div className="relative z-10 max-w-lg">
-          <h3 className="text-3xl font-bold mb-6">
-            Construa, reforme e decore com facilidade.
-          </h3>
-          <p className="text-lg text-green-100 mb-8">
-            Conectamos quem precisa construir com quem tem o material e a mão de obra qualificada.
-          </p>
-          
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/20">
-              <Store className="w-8 h-8 mb-3 text-primary" />
-              <div className="font-bold text-sm">Lojas</div>
-            </div>
-            <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/20">
-              <HardHat className="w-8 h-8 mb-3 text-primary" />
-              <div className="font-bold text-sm">Serviços</div>
-            </div>
-            <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/20">
-              <User className="w-8 h-8 mb-3 text-primary" />
-              <div className="font-bold text-sm">Clientes</div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Círculo Decorativo */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-[500px] h-[500px] bg-primary/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl" />
       </div>
     </div>
   );
