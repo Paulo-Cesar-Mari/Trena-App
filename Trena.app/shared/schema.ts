@@ -30,6 +30,7 @@ export const products = pgTable("products", {
   image: text("image"),
   location: text("location").notNull(),
   storeName: text("store_name").notNull(),
+  contactPhone: text("contact_phone"),
   
   createdAt: timestamp("created_at").defaultNow(),
 });

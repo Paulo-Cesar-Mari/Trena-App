@@ -104,10 +104,15 @@ export default function ProductDetail() {
             {/* Action Buttons */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 md:static md:border-0 md:p-0 md:bg-transparent md:mt-8 z-30">
               <div className="flex gap-3 max-w-6xl mx-auto">
-                <button className="flex-1 bg-green-500 text-white font-bold py-3.5 rounded-xl hover:bg-green-600 transition-colors flex items-center justify-center shadow-lg shadow-green-500/20">
+                <a
+                  href={`https://wa.me/55${product.contactPhone || '11999999999'}?text=Tenho interesse no produto ${product.title}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-green-500 text-white font-bold py-3.5 rounded-xl hover:bg-green-600 transition-colors flex items-center justify-center shadow-lg shadow-green-500/20"
+                >
                   <MessageCircle className="w-5 h-5 mr-2" />
                   WhatsApp
-                </button>
+                </a>
                 <button className="flex-1 bg-primary text-secondary font-bold py-3.5 rounded-xl hover:brightness-105 transition-all shadow-lg shadow-primary/20">
                   Comprar Agora
                 </button>
