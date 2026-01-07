@@ -112,6 +112,15 @@ export async function registerRoutes(
     res.json(profile);
   });
 
+  app.get(api.users.me.products.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const products = await storage.getProducts(undefined, undefined, user.id);
+    res.json(products);
+  });
+
   app.get(api.users.me.path, async (req, res) => {
     if (!req.user) {
       return res.status(401).json({ message: "Não autenticado" });
