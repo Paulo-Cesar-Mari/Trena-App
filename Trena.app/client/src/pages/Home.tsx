@@ -4,7 +4,7 @@ import { useProducts } from "@/hooks/use-products";
 import { useServices } from "@/hooks/use-services";
 import { ProductCard } from "@/components/ProductCard";
 import { ServiceCard } from "@/components/ServiceCard";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 const CATEGORIES = [
   { id: "cimento", name: "Cimento", icon: Hammer },
@@ -19,6 +19,11 @@ export default function Home() {
   const { data: products, isLoading: loadingProducts } = useProducts();
   const { data: services, isLoading: loadingServices } = useServices();
   const [searchTerm, setSearchTerm] = useState("");
+  const [, setLocation] = useLocation();
+
+  const handleSearch = () => {
+    setLocation(`/buscar?search=${searchTerm}`);
+  };
 
   return (
     <div className="pb-24 md:pb-12 space-y-8 bg-gray-50/50">
@@ -39,20 +44,22 @@ export default function Home() {
           </div>
 
           {/* Search Bar */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-xl p-2 shadow-md max-w-2xl mx-auto flex items-center">
+          <div className="bg-white/95 backdrop-blur-sm rounded-xl p-2 shadow-md max-w-2xl mx-auto flex items-center gap-2">
             <Search className="w-5 h-5 text-gray-400 ml-3" />
-            <input 
+            <input
               type="text"
               placeholder="O que você precisa hoje?"
               className="flex-1 p-2 bg-transparent outline-none text-gray-700 placeholder:text-gray-400"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
-            <Link href={`/buscar?search=${searchTerm}`}>
-              <button className="bg-primary hover:bg-primary/90 text-secondary font-bold py-2.5 px-6 rounded-lg transition-colors">
-                Buscar
-              </button>
-            </Link>
+            <button
+              onClick={handleSearch}
+              className="bg-primary hover:bg-primary/90 text-secondary font-bold py-2.5 px-6 rounded-lg transition-colors"
+            >
+              Buscar
+            </button>
           </div>
         </div>
       </section>
