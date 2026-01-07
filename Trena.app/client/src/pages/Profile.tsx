@@ -2,6 +2,7 @@ import { User, Settings, LogOut, Package, HardHat, Heart, Star, ChevronRight, St
 import { useAuth } from "../hooks/use-auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { api, buildUrl } from "@shared/routes";
 import { Product, User as UserType } from "@shared/schema";
 import { ProductCard } from "@/components/ProductCard";
@@ -21,8 +22,14 @@ const getProfileData = async () => {
 };
 
 export default function Profile() {
-  const { user, logoutMutation } = useAuth();
+  const { user, logoutMutation, isLoading: isAuthLoading } = useAuth();
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isAuthLoading && !user) {
+      setLocation("/auth");
+    }
+  }, [user, isAuthLoading, setLocation]);
 
   const { data: profileData, isLoading, error } = useQuery({
     queryKey: ['profile'],
