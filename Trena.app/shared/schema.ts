@@ -15,6 +15,7 @@ export const users = pgTable("users", {
   location: text("location"),
   bio: text("bio"),
   avatar: text("avatar"),
+  phone: text("phone"),
 });
 
 // --- 2. PRODUTOS (Para Lojistas) ---
@@ -97,6 +98,7 @@ export const registerUserSchema = insertUserSchema.pick({
   password: true,
   name: true,
   role: true,
+  phone: true,
 });
 export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true });
 export const insertServiceSchema = createInsertSchema(services).omit({ id: true, rating: true, createdAt: true });
