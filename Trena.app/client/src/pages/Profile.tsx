@@ -95,26 +95,25 @@ export default function Profile() {
           <StatBox label="Avaliações" value={0} />
         </div>
 
-        <Tabs.Root defaultValue={user?.role === 'store' ? 'listings' : 'favorites'} className="pt-4">
-          <Tabs.List className="flex gap-2 sm:gap-4 border-b border-gray-200">
-            {user?.role === 'store' && (
-              <Tabs.Trigger value="listings" className="pb-3 px-2 text-sm sm:text-base font-semibold text-gray-500 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary transition-colors">
-                Meus Anúncios
-              </Tabs.Trigger>
-            )}
-            <Tabs.Trigger value="favorites" className="pb-3 px-2 text-sm sm:text-base font-semibold text-gray-500 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary transition-colors">
-              Favoritos
-            </Tabs.Trigger>
-          </Tabs.List>
+        <div className="pt-4 space-y-3">
           {user?.role === 'store' && (
-            <Tabs.Content value="listings" className="py-6">
-              <UserListings products={profileData?.products || []} />
-            </Tabs.Content>
+            <ProfileButton
+              icon={Package}
+              label="Meus Anúncios"
+              href="/meus-anuncios"
+            />
           )}
-          <Tabs.Content value="favorites" className="py-6">
-            <UserFavorites products={profileData?.favorites || []} />
-          </Tabs.Content>
-        </Tabs.Root>
+          <ProfileButton
+            icon={Heart}
+            label="Favoritos"
+            href="/favoritos"
+          />
+          <ProfileButton
+            icon={Settings}
+            label="Configurações"
+            href="/configuracoes"
+          />
+        </div>
 
         <button 
           onClick={handleLogout}
@@ -129,76 +128,29 @@ export default function Profile() {
   );
 }
 
-const UserListings = ({ products }: { products: Product[] }) => {
-    const [, setLocation] = useLocation();
-
-    if (products.length === 0) {
-        return (
-            <div className="text-center bg-gray-50 rounded-2xl p-6 sm:p-12">
-                <div className="w-16 h-16 bg-white border border-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Package className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-800">Você ainda não tem anúncios</h3>
-                <p className="text-gray-500 text-sm sm:text-base max-w-xs mx-auto mt-2 mb-6">
-                    Que tal começar a vender? Crie seu primeiro anúncio e alcance milhares de compradores.
-                </p>
-                <button
-                    onClick={() => setLocation('/anunciar')}
-                    className="btn-primary"
-                >
-                    Criar meu primeiro anúncio
-                </button>
-            </div>
-        )
-    }
-
-    return (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            {products.map(product => (
-                <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
-    )
-}
-
-const UserFavorites = ({ products }: { products: Product[] }) => {
-    const [, setLocation] = useLocation();
-
-    if (products.length === 0) {
-        return (
-            <div className="text-center bg-gray-50 rounded-2xl p-6 sm:p-12">
-                <div className="w-16 h-16 bg-white border border-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Heart className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-800">Sua lista de favoritos está vazia</h3>
-                <p className="text-gray-500 text-sm sm:text-base max-w-xs mx-auto mt-2 mb-6">
-                    Explore o marketplace e adicione produtos que você amou para vê-los aqui.
-                </p>
-                <button
-                    onClick={() => setLocation('/buscar')}
-                    className="btn-primary"
-                >
-                    Explorar o marketplace
-                </button>
-            </div>
-        )
-    }
-
-    return (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            {products.map(product => (
-                <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
-    )
-}
-
 const StatBox = ({ label, value }: { label: string; value: number | string }) => (
     <div className="text-center flex-1 px-1">
         <span className="block text-xl sm:text-2xl font-bold text-primary">{value}</span>
         <span className="text-xs text-gray-500 font-medium">{label}</span>
     </div>
 );
+
+const ProfileButton = ({ icon: Icon, label, href }: { icon: React.ElementType, label: string, href:string }) => {
+    const [, setLocation] = useLocation();
+
+    return (
+        <button
+            onClick={() => setLocation(href)}
+            className="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-gray-800 font-bold flex items-center gap-4 hover:bg-gray-50 transition-colors"
+        >
+            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                <Icon className="w-5 h-5 text-gray-600" />
+            </div>
+            <span className="flex-1 text-left">{label}</span>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+        </button>
+    )
+};
 
 const ProfileLoadingSkeleton = () => (
     <div className="pb-24 min-h-screen bg-gray-50 animate-pulse">

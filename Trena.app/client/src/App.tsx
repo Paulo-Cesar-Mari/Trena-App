@@ -18,6 +18,9 @@ import Profile from "@/pages/Profile";
 import NotFound from "@/pages/not-found";
 import AuthPage from "./pages/auth-page"; // 2. IMPORTAR A PÁGINA DE LOGIN
 import StoreProfile from "./pages/StoreProfile";
+import MyListings from "./pages/MyListings";
+import Favorites from "./pages/Favorites";
+import Settings from "./pages/Settings";
 
 function Router() {
   return (
@@ -36,6 +39,9 @@ function Router() {
         <Route path="/anunciar" component={CreateListing} />
         <Route path="/perfil" component={Profile} />
         <Route path="/loja/:id" component={StoreProfile} />
+        <Route path="/meus-anuncios" component={MyListings} />
+        <Route path="/favoritos" component={Favorites} />
+        <Route path="/configuracoes" component={Settings} />
         <Route component={NotFound} />
       </Switch>
       <BottomNav />

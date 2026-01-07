@@ -36,7 +36,11 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
 
   // Products
-  getProducts(search?: string, category?: string): Promise<Product[]>;
+  getProducts(
+    search?: string,
+    category?: string,
+    sellerId?: number
+  ): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
 
@@ -135,8 +139,16 @@ export class DatabaseStorage implements IStorage {
     return newUser;
   }
 
-  async getProducts(search?: string, category?: string): Promise<Product[]> {
+  async getProducts(
+    search?: string,
+    category?: string,
+    sellerId?: number
+  ): Promise<Product[]> {
     let query = db.select().from(products);
+
+    if (sellerId) {
+      query.where(eq(products.sellerId, sellerId));
+    }
 
     if (search) {
       const searchLower = `%${search.toLowerCase()}%`;
