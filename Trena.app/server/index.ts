@@ -20,7 +20,14 @@ app.use(
   }),
 );
 
+import cors from "cors";
+
 app.use(express.urlencoded({ extended: false }));
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {

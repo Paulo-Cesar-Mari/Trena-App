@@ -133,6 +133,28 @@ export async function registerRoutes(
     res.json(profile);
   });
 
+  app.patch(api.users.updateMe.path, async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+
+    try {
+        const input = api.users.updateMe.input.parse(req.body);
+        const updatedUser = await storage.updateUser(user.id, input);
+        res.json(updatedUser);
+    } catch (err) {
+        if (err instanceof z.ZodError) {
+            return res.status(400).json({
+                message: err.errors[0].message,
+                field: err.errors[0].path.join('.'),
+            });
+        }
+        console.error("Erro ao atualizar o usuário:", err);
+        res.status(500).json({ message: "Erro interno do servidor." });
+    }
+  });
+
   // Portfolio Upload
   app.post(
     "/api/users/:id/portfolio",
