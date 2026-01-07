@@ -6,7 +6,7 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { z } from "zod";
-import { User as SelectUser, insertUserSchema } from "@shared/schema";
+import { User as SelectUser, registerUserSchema } from "@shared/schema";
 
 const scryptAsync = promisify(scrypt);
 
@@ -60,7 +60,7 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      const validation = insertUserSchema.safeParse(req.body);
+      const validation = registerUserSchema.safeParse(req.body);
       if (!validation.success) {
         const { errors } = validation.error;
         return res.status(400).json({

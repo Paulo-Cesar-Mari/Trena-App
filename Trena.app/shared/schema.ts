@@ -12,7 +12,6 @@ export const users = pgTable("users", {
   // O papel define o tipo de cadastro: 'consumer' (cliente), 'professional' (prestador), 'store' (loja)
   role: text("role").default("consumer").notNull(), 
   
-  email: text("email"), // Adicionei email para contato
   location: text("location"),
   bio: text("bio"),
   avatar: text("avatar"),
@@ -93,6 +92,12 @@ export const portfolioItems = pgTable("portfolio_items", {
 // --- SCHEMAS E TIPOS ---
 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
+export const registerUserSchema = insertUserSchema.pick({
+  username: true,
+  password: true,
+  name: true,
+  role: true,
+});
 export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true });
 export const insertServiceSchema = createInsertSchema(services).omit({ id: true, rating: true, createdAt: true });
 // Schemas para as novas tabelas
