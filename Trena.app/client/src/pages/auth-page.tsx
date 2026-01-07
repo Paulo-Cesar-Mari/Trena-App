@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth"; // ou "../hooks/use-auth" se der err
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertUserSchema } from "@shared/schema";
+import { registerUserSchema } from "@shared/schema";
 import { z } from "zod";
 import { Loader2, Store, User, HardHat } from "lucide-react";
 
@@ -86,7 +86,7 @@ function AuthForm({ isLogin }: { isLogin: boolean }) {
   const { loginMutation, registerMutation } = useAuth();
   
   const form = useForm({
-    resolver: zodResolver(insertUserSchema),
+    resolver: zodResolver(registerUserSchema),
     defaultValues: {
       username: "",
       password: "",
