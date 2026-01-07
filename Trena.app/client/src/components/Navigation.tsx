@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 export function BottomNav() {
   const [location] = useLocation();
 
-  const NavItem = ({ href, icon: Icon, label }: { href: string; icon: any; label: string }) => {
+  const NavItem = ({ href, icon: Icon, label, className }: { href: string; icon: any; label: string, className?: string }) => {
     const isActive = location === href;
     return (
-      <Link href={href}>
+      <Link href={href} className={cn("flex-1", className)}>
         <div className={cn(
           "flex flex-col items-center justify-center space-y-1 w-full h-full py-2 px-1 cursor-pointer transition-colors duration-200",
           isActive ? "text-primary" : "text-gray-400 hover:text-gray-600"
@@ -25,12 +25,14 @@ export function BottomNav() {
       <div className="flex justify-around items-center h-16 max-w-md mx-auto">
         <NavItem href="/" icon={Home} label="Início" />
         <NavItem href="/buscar" icon={Search} label="Buscar" />
-        <div className="relative -top-5">
-          <Link href="/anunciar">
-            <div className="bg-primary text-secondary p-3 rounded-full shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-transform cursor-pointer border-4 border-white">
-              <PlusCircle className="w-7 h-7" strokeWidth={2.5} />
+        <div className="flex-1 flex justify-center items-center">
+            <div className="relative -top-5">
+              <Link href="/anunciar">
+                <div className="bg-primary text-secondary p-3 rounded-full shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-transform cursor-pointer border-4 border-white dark:border-gray-800">
+                  <PlusCircle className="w-7 h-7" strokeWidth={2.5} />
+                </div>
+              </Link>
             </div>
-          </Link>
         </div>
         <NavItem href="/servicos" icon={HardHat} label="Serviços" />
         <NavItem href="/perfil" icon={User} label="Perfil" />
