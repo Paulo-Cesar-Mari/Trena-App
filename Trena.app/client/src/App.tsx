@@ -17,6 +17,7 @@ import CreateListing from "@/pages/CreateListing";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/not-found";
 import AuthPage from "./pages/auth-page"; // 2. IMPORTAR A PÁGINA DE LOGIN
+import PremiumSignupPage from "./pages/premium-signup";
 import StoreProfile from "./pages/StoreProfile";
 import MyListings from "./pages/MyListings";
 import Favorites from "./pages/Favorites";
@@ -31,6 +32,7 @@ function Router() {
         
         {/* 3. ADICIONAR A ROTA DE LOGIN */}
         <Route path="/auth" component={AuthPage} />
+        <Route path="/premium-signup" component={PremiumSignupPage} />
         
         <Route path="/buscar" component={ProductList} />
         <Route path="/produto/:id" component={ProductDetail} />

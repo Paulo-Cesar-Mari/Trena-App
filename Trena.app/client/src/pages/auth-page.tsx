@@ -55,6 +55,16 @@ export default function AuthPage() {
               {isLogin ? "Cadastre-se" : "Fazer login"}
             </button>
           </p>
+
+          {/* Link para Cadastro Premium */}
+          {!isLogin && (
+            <p className="px-8 text-center text-sm text-muted-foreground">
+              Ou faça seu{" "}
+              <a href="/premium-signup" className="underline underline-offset-4 hover:text-primary font-semibold text-primary">
+                CADASTRO PREMIUM
+              </a>
+            </p>
+          )}
         </div>
       </div>
 
