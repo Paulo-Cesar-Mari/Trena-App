@@ -16,7 +16,7 @@ import {
   type PortfolioItem,
   favorites,
 } from "@shared/schema";
-import { eq, ilike, or } from "drizzle-orm";
+import { eq, ilike, or, getTableColumns } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -168,11 +168,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    const [product] = await db
-      .select()
+    const [productData] = await db
+      .select({
+        ...getTableColumns(products),
+        contactPhone: users.phone,
+      })
       .from(products)
+      .leftJoin(users, eq(products.sellerId, users.id))
       .where(eq(products.id, id));
-    return product;
+
+    return productData as Product | undefined;
   }
 
   async createProduct(product: InsertProduct): Promise<Product> {
