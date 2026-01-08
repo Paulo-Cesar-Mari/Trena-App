@@ -43,12 +43,12 @@ export default function PremiumSignupPage() {
   const prevStep = () => setStep((prev) => prev - 1);
 
   return (
-    <div className="container relative min-h-screen flex items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[450px]">
+    <div className="container relative min-h-screen flex items-center justify-center p-4 sm:p-6">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-4 sm:space-y-6 sm:w-[450px] bg-card p-6 sm:p-8 rounded-xl shadow-lg">
         {/* Botão de Voltar */}
         {step > 1 && (
-            <button onClick={prevStep} className="absolute top-8 left-8 text-sm text-muted-foreground hover:text-primary flex items-center">
-                <ArrowLeft className="w-4 h-4 mr-2" />
+            <button onClick={prevStep} className="absolute top-4 left-4 sm:top-8 sm:left-8 text-sm text-muted-foreground hover:text-primary flex items-center">
+                <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
                 Voltar
             </button>
         )}
@@ -58,7 +58,7 @@ export default function PremiumSignupPage() {
             <img
               src="/logo-trena.png"
               alt="TRENA Logo"
-              className="h-20 w-20 object-contain mb-4"
+              className="h-16 w-16 sm:h-20 sm:w-20 object-contain mb-2 sm:mb-4"
             />
           <h1 className="text-2xl font-semibold tracking-tight">
             Crie sua Conta Premium
@@ -69,7 +69,7 @@ export default function PremiumSignupPage() {
         </div>
 
         {/* Barra de Progresso */}
-        <div className="w-full px-8">
+        <div className="w-full px-4 sm:px-8">
             <div className="relative h-2 w-full bg-muted rounded-full">
                 <div
                     className="absolute top-0 left-0 h-2 bg-primary rounded-full transition-all duration-500"
@@ -83,7 +83,7 @@ export default function PremiumSignupPage() {
             </div>
         </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-8 py-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-4 sm:px-8 py-4">
           {step === 1 && (
             <Step1 form={form} nextStep={nextStep} />
           )}
@@ -115,10 +115,10 @@ function Step1({ form, nextStep }: StepProps) {
     };
 
     return (
-        <div className="space-y-4 animate-in fade-in-50">
+        <div className="space-y-6 animate-in fade-in-50">
             <h2 className="text-lg font-medium text-center">Passo 1: Seus Dados</h2>
             <div className="grid gap-2">
-                <label className="text-sm font-medium" htmlFor="name">Nome Completo</label>
+                <label className="text-sm font-medium sr-only" htmlFor="name">Nome Completo</label>
                 <input
                     id="name"
                     placeholder="Seu nome e sobrenome"
@@ -128,7 +128,7 @@ function Step1({ form, nextStep }: StepProps) {
                 {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
             </div>
             <div className="grid gap-2">
-                <label className="text-sm font-medium" htmlFor="username">Nome de Usuário</label>
+                <label className="text-sm font-medium sr-only" htmlFor="username">Nome de Usuário</label>
                 <input
                     id="username"
                     placeholder="Como você quer ser chamado"
@@ -155,10 +155,10 @@ function Step2({ form, nextStep }: StepProps) {
     };
 
     return (
-        <div className="space-y-4 animate-in fade-in-50">
+        <div className="space-y-6 animate-in fade-in-50">
              <h2 className="text-lg font-medium text-center">Passo 2: Segurança</h2>
             <div className="grid gap-2">
-                <label className="text-sm font-medium" htmlFor="password">Senha</label>
+                <label className="text-sm font-medium sr-only" htmlFor="password">Senha</label>
                 <input
                     id="password"
                     type="password"
@@ -179,32 +179,32 @@ function Step3({ form }: { form: UseFormReturn<PremiumRegisterInput> }) {
   const { register, formState: { isSubmitting } } = form;
 
   return (
-    <div className="space-y-4 animate-in fade-in-50">
+    <div className="space-y-6 animate-in fade-in-50">
         <h2 className="text-lg font-medium text-center">Passo 3: Tipo de Conta</h2>
       <div className="space-y-3 pt-2">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <label className="cursor-pointer">
                 <input type="radio" value="consumer" {...register("role")} className="peer sr-only" />
                 <div className="card-radio">
                   <User className="w-6 h-6 mx-auto mb-2" />
-                  <span className="font-bold block">Comprar</span>
-                  <span className="text-xs text-muted-foreground">Para quem busca produtos e serviços.</span>
+                  <span className="font-bold text-sm block">Comprar</span>
+                  <span className="text-xs text-muted-foreground mt-1">Busco produtos e serviços.</span>
                 </div>
               </label>
               <label className="cursor-pointer">
                 <input type="radio" value="professional" {...register("role")} className="peer sr-only" />
                 <div className="card-radio">
                   <HardHat className="w-6 h-6 mx-auto mb-2" />
-                  <span className="font-bold block">Trabalhar</span>
-                   <span className="text-xs text-muted-foreground">Para quem presta serviços na área.</span>
+                  <span className="font-bold text-sm block">Trabalhar</span>
+                   <span className="text-xs text-muted-foreground mt-1">Presto serviços na área.</span>
                 </div>
               </label>
               <label className="cursor-pointer">
                 <input type="radio" value="store" {...register("role")} className="peer sr-only" />
                 <div className="card-radio">
                   <Store className="w-6 h-6 mx-auto mb-2" />
-                  <span className="font-bold block">Vender</span>
-                   <span className="text-xs text-muted-foreground">Para quem tem uma loja de materiais.</span>
+                  <span className="font-bold text-sm block">Vender</span>
+                   <span className="text-xs text-muted-foreground mt-1">Tenho uma loja de materiais.</span>
                 </div>
               </label>
           </div>
