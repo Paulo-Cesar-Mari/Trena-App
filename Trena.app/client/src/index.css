@@ -64,6 +64,14 @@
   .glass-nav {
     @apply bg-white/90 backdrop-blur-lg border-t border-gray-100 shadow-lg shadow-black/5;
   }
+
+  .input-field {
+      @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+
+  .card-radio {
+      @apply rounded-md border-2 border-muted bg-popover p-4 text-center hover:bg-accent hover:text-accent-foreground peer-checked:border-primary peer-checked:bg-primary/10 transition-all h-full flex flex-col justify-center items-center;
+  }
 }
 
 /* Hide scrollbar for horizontal scrolling areas */
