@@ -44,6 +44,14 @@ export const api = {
         400: errorSchemas.validation,
       },
     },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/products/:id',
+      responses: {
+        200: z.object({ success: z.boolean() }),
+        404: errorSchemas.notFound,
+      },
+    },
   },
   services: {
     list: {
@@ -96,6 +104,22 @@ export const api = {
           products: z.array(z.custom<typeof products.$inferSelect>()),
           favorites: z.array(z.custom<typeof products.$inferSelect>()),
         }),
+      },
+      products: {
+        method: 'GET' as const,
+        path: '/api/me/products',
+        responses: {
+          200: z.array(z.custom<typeof products.$inferSelect>()),
+        },
+      },
+    },
+    updateMe: {
+      method: 'PATCH' as const,
+      path: '/api/me',
+      input: z.custom<Partial<Pick<typeof users.$inferSelect, "name" | "location" | "bio" | "avatar" | "phone">>>(),
+      responses: {
+        200: z.custom<typeof users.$inferSelect>(),
+        400: errorSchemas.validation,
       },
     },
   },

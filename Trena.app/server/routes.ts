@@ -71,6 +71,22 @@ export async function registerRoutes(
     }
   });
 
+  app.delete(api.products.delete.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const product = await storage.getProduct(Number(req.params.id));
+    if (!product) {
+      return res.status(404).json({ message: "Produto não encontrado" });
+    }
+    if (product.sellerId !== user.id) {
+      return res.status(403).json({ message: "Não autorizado" });
+    }
+    await storage.deleteProduct(Number(req.params.id));
+    res.json({ success: true });
+  });
+
   // Serviços
   app.get(api.services.list.path, async (req, res) => {
     const search = req.query.search as string | undefined;
@@ -112,15 +128,6 @@ export async function registerRoutes(
     res.json(profile);
   });
 
-  app.get(api.users.me.products.path, async (req, res) => {
-    if (!req.user) {
-      return res.status(401).json({ message: "Não autenticado" });
-    }
-    const user = req.user as SelectUser;
-    const products = await storage.getProducts(undefined, undefined, user.id);
-    res.json(products);
-  });
-
   app.get(api.users.me.path, async (req, res) => {
     if (!req.user) {
       return res.status(401).json({ message: "Não autenticado" });
@@ -153,6 +160,15 @@ export async function registerRoutes(
         console.error("Erro ao atualizar o usuário:", err);
         res.status(500).json({ message: "Erro interno do servidor." });
     }
+  });
+
+  app.get(api.users.me.products.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const products = await storage.getProducts(undefined, undefined, user.id);
+    res.json(products);
   });
 
   // Portfolio Upload

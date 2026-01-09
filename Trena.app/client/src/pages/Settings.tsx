@@ -7,7 +7,7 @@ import { api } from "@shared/routes";
 import { User as UserType } from "@shared/schema";
 import { apiRequest } from "../lib/queryClient";
 
-const updateUser = async (data: Partial<Pick<UserType, "name" | "location" | "bio" | "avatar">>) => {
+const updateUser = async (data: Partial<Pick<UserType, "name" | "location" | "bio" | "avatar" | "phone">>) => {
     const response = await apiRequest('PATCH', api.users.updateMe.path, data);
 
     if (!response.ok) {
