@@ -3,7 +3,13 @@ import { api, buildUrl } from "@shared/routes";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 
-export function useProducts(filters?: { search?: string; category?: string }) {
+export function useProducts(filters?: {
+  search?: string;
+  category?: string;
+  priceMin?: number;
+  priceMax?: number;
+  location?: string;
+}) {
   const queryKey = [api.products.list.path, filters];
   
   return useQuery({
@@ -13,6 +19,9 @@ export function useProducts(filters?: { search?: string; category?: string }) {
       const url = new URL(api.products.list.path, window.location.origin);
       if (filters?.search) url.searchParams.append("search", filters.search);
       if (filters?.category) url.searchParams.append("category", filters.category);
+      if (filters?.priceMin) url.searchParams.append("priceMin", filters.priceMin.toString());
+      if (filters?.priceMax) url.searchParams.append("priceMax", filters.priceMax.toString());
+      if (filters?.location) url.searchParams.append("location", filters.location);
       
       const res = await fetch(url.toString(), { credentials: "include" });
       if (!res.ok) throw new Error("Falha ao carregar produtos");

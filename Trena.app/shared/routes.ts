@@ -22,6 +22,9 @@ export const api = {
       input: z.object({
         search: z.string().optional(),
         category: z.string().optional(),
+        priceMin: z.coerce.number().optional(),
+        priceMax: z.coerce.number().optional(),
+        location: z.string().optional(),
       }).optional(),
       responses: {
         200: z.array(z.custom<typeof products.$inferSelect>()),
@@ -60,6 +63,10 @@ export const api = {
       input: z.object({
         search: z.string().optional(),
         category: z.string().optional(),
+        ratingMin: z.coerce.number().optional(),
+        hourlyRateMin: z.coerce.number().optional(),
+        hourlyRateMax: z.coerce.number().optional(),
+        location: z.string().optional(),
       }).optional(),
       responses: {
         200: z.array(z.custom<typeof services.$inferSelect>()),

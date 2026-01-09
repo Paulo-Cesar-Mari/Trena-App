@@ -41,9 +41,22 @@ export async function registerRoutes(
 
   // Produtos
   app.get(api.products.list.path, async (req, res) => {
-    const search = req.query.search as string | undefined;
-    const category = req.query.category as string | undefined;
-    const products = await storage.getProducts(search, category);
+    const {
+      search,
+      category,
+      priceMin,
+      priceMax,
+      location
+    } = api.products.list.input.parse(req.query) ?? {};
+
+    const products = await storage.getProducts(
+      search,
+      category,
+      undefined,
+      priceMin,
+      priceMax,
+      location
+    );
     res.json(products);
   });
 
@@ -89,9 +102,23 @@ export async function registerRoutes(
 
   // Serviços
   app.get(api.services.list.path, async (req, res) => {
-    const search = req.query.search as string | undefined;
-    const category = req.query.category as string | undefined;
-    const services = await storage.getServices(search, category);
+    const {
+      search,
+      category,
+      ratingMin,
+      hourlyRateMin,
+      hourlyRateMax,
+      location,
+    } = api.services.list.input.parse(req.query) ?? {};
+
+    const services = await storage.getServices(
+      search,
+      category,
+      ratingMin,
+      hourlyRateMin,
+      hourlyRateMax,
+      location
+    );
     res.json(services);
   });
 
