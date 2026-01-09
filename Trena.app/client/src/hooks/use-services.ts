@@ -3,7 +3,14 @@ import { api, buildUrl } from "@shared/routes";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 
-export function useServices(filters?: { search?: string; category?: string }) {
+export function useServices(filters?: {
+  search?: string;
+  category?: string;
+  ratingMin?: number;
+  hourlyRateMin?: number;
+  hourlyRateMax?: number;
+  location?: string;
+}) {
   const queryKey = [api.services.list.path, filters];
   
   return useQuery({
@@ -12,6 +19,10 @@ export function useServices(filters?: { search?: string; category?: string }) {
       const url = new URL(api.services.list.path, window.location.origin);
       if (filters?.search) url.searchParams.append("search", filters.search);
       if (filters?.category) url.searchParams.append("category", filters.category);
+      if (filters?.ratingMin) url.searchParams.append("ratingMin", filters.ratingMin.toString());
+      if (filters?.hourlyRateMin) url.searchParams.append("hourlyRateMin", filters.hourlyRateMin.toString());
+      if (filters?.hourlyRateMax) url.searchParams.append("hourlyRateMax", filters.hourlyRateMax.toString());
+      if (filters?.location) url.searchParams.append("location", filters.location);
       
       const res = await fetch(url.toString(), { credentials: "include" });
       if (!res.ok) throw new Error("Falha ao carregar serviços");

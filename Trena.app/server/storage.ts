@@ -16,7 +16,7 @@ import {
   type PortfolioItem,
   favorites,
 } from "@shared/schema";
-import { eq, ilike, or, getTableColumns } from "drizzle-orm";
+import { eq, ilike, or, getTableColumns, and, gte, lte } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -40,14 +40,24 @@ export interface IStorage {
   getProducts(
     search?: string,
     category?: string,
-    sellerId?: number
+    sellerId?: number,
+    priceMin?: number,
+    priceMax?: number,
+    location?: string,
   ): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   deleteProduct(id: number): Promise<void>;
 
   // Services
-  getServices(search?: string, category?: string): Promise<Service[]>;
+  getServices(
+    search?: string,
+    category?: string,
+    ratingMin?: number,
+    hourlyRateMin?: number,
+    hourlyRateMax?: number,
+    location?: string,
+  ): Promise<Service[]>;
   getService(id: number): Promise<Service | undefined>;
   createService(service: InsertService): Promise<Service>;
 
@@ -149,26 +159,47 @@ export class DatabaseStorage implements IStorage {
   async getProducts(
     search?: string,
     category?: string,
-    sellerId?: number
+    sellerId?: number,
+    priceMin?: number,
+    priceMax?: number,
+    location?: string,
   ): Promise<Product[]> {
-    let query = db.select().from(products);
+    let conditions = [];
 
     if (sellerId) {
-      query.where(eq(products.sellerId, sellerId));
+      conditions.push(eq(products.sellerId, sellerId));
     }
 
     if (search) {
       const searchLower = `%${search.toLowerCase()}%`;
-      query.where(
+      conditions.push(
         or(
           ilike(products.title, searchLower),
           ilike(products.description, searchLower)
-        )
+        )!
       );
     }
 
     if (category) {
-      query.where(eq(products.category, category));
+      conditions.push(eq(products.category, category));
+    }
+
+    if (priceMin) {
+      conditions.push(gte(products.price, priceMin.toString()));
+    }
+
+    if (priceMax) {
+      conditions.push(lte(products.price, priceMax.toString()));
+    }
+
+    if (location) {
+      conditions.push(ilike(products.location, `%${location}%`));
+    }
+
+    let query = db.select().from(products);
+
+    if (conditions.length > 0) {
+      query.where(and(...conditions));
     }
 
     return await query;
@@ -199,22 +230,51 @@ export class DatabaseStorage implements IStorage {
     await db.delete(products).where(eq(products.id, id));
   }
 
-  async getServices(search?: string, category?: string): Promise<Service[]> {
-    let query = db.select().from(services);
+  async getServices(
+    search?: string,
+    category?: string,
+    ratingMin?: number,
+    hourlyRateMin?: number,
+    hourlyRateMax?: number,
+    location?: string,
+  ): Promise<Service[]> {
+    let conditions = [];
 
     if (search) {
       const searchLower = `%${search.toLowerCase()}%`;
-      query.where(
+      conditions.push(
         or(
           ilike(services.name, searchLower),
           ilike(services.description, searchLower),
           ilike(services.serviceType, searchLower)
-        )
+        )!
       );
     }
 
     if (category) {
-      query.where(eq(services.serviceType, category));
+      conditions.push(eq(services.serviceType, category));
+    }
+
+    if (ratingMin) {
+      conditions.push(gte(services.rating, ratingMin.toString()));
+    }
+
+    if (hourlyRateMin) {
+      conditions.push(gte(services.hourlyRate, hourlyRateMin.toString()));
+    }
+
+    if (hourlyRateMax) {
+      conditions.push(lte(services.hourlyRate, hourlyRateMax.toString()));
+    }
+
+    if (location) {
+      conditions.push(ilike(services.location, `%${location}%`));
+    }
+
+    let query = db.select().from(services);
+
+    if (conditions.length > 0) {
+      query.where(and(...conditions));
     }
 
     return await query;

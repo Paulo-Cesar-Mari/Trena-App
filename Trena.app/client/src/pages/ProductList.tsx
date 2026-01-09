@@ -3,6 +3,13 @@ import { Search, SlidersHorizontal, PackageOpen } from "lucide-react";
 import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/ProductCard";
 import { useLocation } from "wouter";
+import { Filter } from "@/components/ui/Filter";
+
+const defaultFilters = {
+  priceMin: 0,
+  priceMax: 1000,
+  location: "",
+};
 
 export default function ProductList() {
   const [location] = useLocation();
@@ -11,10 +18,12 @@ export default function ProductList() {
   
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState(initialCategory);
+  const [filters, setFilters] = useState(defaultFilters);
   
   const { data: products, isLoading } = useProducts({ 
     search: search || undefined, 
-    category: category || undefined 
+    category: category || undefined,
+    ...filters,
   });
 
   const categories = ["Cimento", "Pintura", "Ferramentas", "Elétrica", "Hidráulica", "Pisos", "Telhados"];
@@ -40,9 +49,16 @@ export default function ProductList() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <button className="p-3 bg-gray-100 border border-transparent rounded-xl text-gray-600 hover:bg-gray-200">
-            <SlidersHorizontal className="w-5 h-5" />
-          </button>
+          <Filter
+            type="product"
+            filters={filters}
+            setFilters={setFilters}
+            defaultFilters={defaultFilters}
+          >
+            <button className="p-3 bg-gray-100 border border-transparent rounded-xl text-gray-600 hover:bg-gray-200">
+              <SlidersHorizontal className="w-5 h-5" />
+            </button>
+          </Filter>
         </div>
 
         {/* Categories Pills */}

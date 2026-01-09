@@ -2,14 +2,24 @@ import { useState } from "react";
 import { Search, MapPin, HardHat } from "lucide-react";
 import { useServices } from "@/hooks/use-services";
 import { ServiceCard } from "@/components/ServiceCard";
+import { Filter } from "@/components/ui/Filter";
+
+const defaultFilters = {
+  ratingMin: 0,
+  hourlyRateMin: 0,
+  hourlyRateMax: 500,
+  location: "São Paulo, SP",
+};
 
 export default function ServiceList() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
+  const [filters, setFilters] = useState(defaultFilters);
   
   const { data: services, isLoading } = useServices({ 
     search: search || undefined, 
-    category: category || undefined 
+    category: category || undefined,
+    ...filters,
   });
 
   const categories = ["Pedreiro", "Eletricista", "Pintor", "Encanador", "Arquiteto", "Engenheiro"];
@@ -18,10 +28,17 @@ export default function ServiceList() {
     <div className="pb-24 pt-4 px-4 max-w-4xl mx-auto min-h-screen">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-secondary">Profissionais</h1>
-        <div className="flex items-center text-sm text-gray-500 bg-white px-3 py-1.5 rounded-full border border-gray-100 shadow-sm">
-          <MapPin className="w-3.5 h-3.5 mr-1 text-primary" />
-          <span>São Paulo, SP</span>
-        </div>
+        <Filter
+          type="service"
+          filters={filters}
+          setFilters={setFilters}
+          defaultFilters={defaultFilters}
+        >
+          <div className="flex items-center text-sm text-gray-500 bg-white px-3 py-1.5 rounded-full border border-gray-100 shadow-sm cursor-pointer">
+            <MapPin className="w-3.5 h-3.5 mr-1 text-primary" />
+            <span>{filters.location}</span>
+          </div>
+        </Filter>
       </div>
 
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6">
