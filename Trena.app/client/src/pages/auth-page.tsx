@@ -69,11 +69,10 @@ export default function AuthPage() {
       </div>
 
       {/* Coluna da Direita (Imagem) */}
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-        <div className="absolute inset-0 bg-secondary" />
+      <div data-testid="auth-sidebar" className="relative hidden h-full flex-col bg-primary p-10 text-primary-foreground dark:border-r lg:flex">
         <div className="relative z-20 flex items-center text-lg font-medium">
           <img
-              src="/logo-trena.png"
+              src="/logo-trena-dark.png"
               alt="TRENA Logo"
               className="h-12 w-12 object-contain mr-3"
             />

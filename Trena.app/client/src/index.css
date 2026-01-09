@@ -44,7 +44,18 @@
 @layer base {
   body {
     @apply bg-background text-foreground antialiased font-sans;
-    background-color: #F3F4F6; /* Light gray background for contrast with white cards */
+  }
+}
+
+@layer theme {
+  .bg-background {
+    background-color: hsl(var(--background));
+  }
+  .text-foreground {
+    color: hsl(var(--foreground));
+  }
+  .text-secondary {
+    color: hsl(var(--secondary));
   }
   
   h1, h2, h3, h4, h5, h6 {
