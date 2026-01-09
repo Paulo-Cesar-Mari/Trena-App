@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Product } from "@shared/schema";
 import { ProductCard } from "@/components/ProductCard";
-import { api } from "@shared/routes";
-import { Package } from "lucide-react";
+import { api, buildUrl } from "@shared/routes";
+import { Package, Trash2, Edit } from "lucide-react";
 import { useLocation } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
 
 const getMyListings = async () => {
   const response = await fetch(api.users.me.products.path);
@@ -11,6 +12,39 @@ const getMyListings = async () => {
     throw new Error("Network response was not ok");
   }
   return response.json() as Promise<Product[]>;
+};
+
+const deleteProduct = async (id: number) => {
+  const url = buildUrl(api.products.delete.path, { id });
+  const response = await apiRequest("DELETE", url);
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
+
+const MyListingsProductCard = ({ product }: { product: Product }) => {
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-listings"] });
+    },
+  });
+
+  return (
+    <div className="relative">
+      <ProductCard product={product} />
+      <div className="absolute top-2 right-2 flex gap-2">
+        <button
+          onClick={() => deleteMutation.mutate(product.id)}
+          className="bg-red-500 text-white p-2 rounded-full shadow"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default function MyListings() {
@@ -54,7 +88,7 @@ export default function MyListings() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <MyListingsProductCard key={product.id} product={product} />
       ))}
     </div>
   );
