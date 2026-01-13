@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertProductSchema, insertServiceSchema, products, services, users } from './schema';
+import { insertProductSchema, insertReviewSchema, insertServiceSchema, products, reviews, services, users } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -53,6 +53,36 @@ export const api = {
       responses: {
         200: z.object({ success: z.boolean() }),
         404: errorSchemas.notFound,
+      },
+    },
+  },
+  reviews: {
+    create: {
+      method: 'POST' as const,
+      path: '/api/reviews',
+      input: insertReviewSchema,
+      responses: {
+        201: z.custom<typeof reviews.$inferSelect>(),
+        400: errorSchemas.validation,
+      },
+    },
+    list: {
+      method: 'GET' as const,
+      path: '/api/reviews/:targetId',
+      responses: {
+        200: z.array(
+          z.object({
+            id: z.number(),
+            rating: z.number(),
+            comment: z.string().nullable(),
+            createdAt: z.date().nullable(),
+            author: z.object({
+                id: z.number(),
+                name: z.string(),
+                avatar: z.string().nullable(),
+            }),
+          })
+        ),
       },
     },
   },

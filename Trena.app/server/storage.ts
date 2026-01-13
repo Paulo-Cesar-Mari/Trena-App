@@ -6,14 +6,17 @@ import {
   services,
   users,
   portfolioItems,
+  reviews,
   type InsertProduct,
   type InsertService,
   type InsertUser,
   type InsertPortfolioItem,
+  type InsertReview,
   type Product,
   type Service,
   type User,
   type PortfolioItem,
+  type Review,
   favorites,
 } from "@shared/schema";
 import { eq, ilike, or, getTableColumns, and, gte, lte } from "drizzle-orm";
@@ -64,6 +67,22 @@ export interface IStorage {
   // Portfolio
   createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem>;
   getPortfolioItems(userId: number): Promise<PortfolioItem[]>;
+
+  // Reviews
+  createReview(review: InsertReview): Promise<Review>;
+  getReviewsByTarget(targetId: number): Promise<
+    {
+      id: number;
+      rating: number;
+      comment: string | null;
+      createdAt: Date | null;
+      author: {
+        id: number;
+        name: string;
+        avatar: string | null;
+      };
+    }[]
+  >;
 
   // Session
   sessionStore: session.Store;
@@ -307,6 +326,32 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(portfolioItems)
       .where(eq(portfolioItems.userId, userId));
+  }
+
+  // Reviews
+  async createReview(review: InsertReview): Promise<Review> {
+    const [newReview] = await db.insert(reviews).values(review).returning();
+    return newReview;
+  }
+
+  async getReviewsByTarget(targetId: number) {
+    const result = await db
+      .select({
+        id: reviews.id,
+        rating: reviews.rating,
+        comment: reviews.comment,
+        createdAt: reviews.createdAt,
+        author: {
+          id: users.id,
+          name: users.name,
+          avatar: users.avatar,
+        },
+      })
+      .from(reviews)
+      .where(eq(reviews.targetId, targetId))
+      .innerJoin(users, eq(reviews.authorId, users.id));
+
+    return result;
   }
 }
 
