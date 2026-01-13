@@ -130,6 +130,25 @@ export const api = {
     },
   },
   messages: {
+    getConversations: {
+      method: 'GET' as const,
+      path: '/api/messages/conversations',
+      responses: {
+        200: z.array(z.object({
+          otherUser: z.object({
+            id: z.number(),
+            name: z.string(),
+            avatar: z.string().nullable(),
+          }),
+          lastMessage: z.object({
+            id: z.number(),
+            content: z.string(),
+            createdAt: z.coerce.date(),
+            readAt: z.coerce.date().nullable(),
+          }),
+        })),
+      },
+    },
     getMessages: {
       method: 'GET' as const,
       path: '/api/messages/user/:id',
