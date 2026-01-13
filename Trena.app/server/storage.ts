@@ -19,7 +19,7 @@ import {
   type Review,
   favorites,
 } from "@shared/schema";
-import { eq, ilike, or, getTableColumns, and, gte, lte } from "drizzle-orm";
+import { eq, ilike, or, getTableColumns, and, gte, lte, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -71,17 +71,13 @@ export interface IStorage {
   // Reviews
   createReview(review: InsertReview): Promise<Review>;
   getReviewsByTarget(targetId: number): Promise<
-    {
-      id: number;
-      rating: number;
-      comment: string | null;
-      createdAt: Date | null;
+    (Review & {
       author: {
         id: number;
         name: string;
         avatar: string | null;
       };
-    }[]
+    })[]
   >;
 
   // Session
@@ -335,23 +331,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getReviewsByTarget(targetId: number) {
-    const result = await db
-      .select({
-        id: reviews.id,
-        rating: reviews.rating,
-        comment: reviews.comment,
-        createdAt: reviews.createdAt,
+    return db.query.reviews.findMany({
+      where: eq(reviews.targetId, targetId),
+      with: {
         author: {
-          id: users.id,
-          name: users.name,
-          avatar: users.avatar,
-        },
-      })
-      .from(reviews)
-      .where(eq(reviews.targetId, targetId))
-      .innerJoin(users, eq(reviews.authorId, users.id));
-
-    return result;
+          columns: {
+            id: true,
+            name: true,
+            avatar: true,
+          }
+        }
+      },
+      orderBy: [desc(reviews.createdAt)],
+    });
   }
 }
 

@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { pgTable, text, serial, integer, boolean, timestamp, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -65,7 +66,7 @@ export const favorites = pgTable("favorites", {
 // Avaliações (Notas e Comentários)
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
-  authorId: integer("author_id").notNull(), // Cliente que escreveu
+  authorId: integer("author_id").notNull().references(() => users.id), // Cliente que escreveu
   targetId: integer("target_id").notNull(), // Loja ou Prestador que recebeu
   rating: integer("rating").notNull(), // 1 a 5
   comment: text("comment"),
@@ -89,6 +90,18 @@ export const portfolioItems = pgTable("portfolio_items", {
   caption: text("caption"), // Uma legenda para a foto
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// --- RELAÇÕES (Para queries mais fáceis) ---
+export const usersRelations = relations(users, ({ many }) => ({
+	reviews: many(reviews),
+}));
+
+export const reviewsRelations = relations(reviews, ({ one }) => ({
+	author: one(users, {
+		fields: [reviews.authorId],
+		references: [users.id],
+	}),
+}));
 
 // --- SCHEMAS E TIPOS ---
 
