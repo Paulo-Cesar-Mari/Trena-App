@@ -1,12 +1,19 @@
+import { useState } from "react";
 import { useService } from "@/hooks/use-services";
+import { useReviews } from "@/hooks/use-reviews";
+import { useSendMessage } from "@/hooks/use-messages";
 import { useRoute, Link } from "wouter";
 import { ArrowLeft, Share2, MapPin, Star, Phone, MessageSquare, Award, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MessageModal } from "@/components/MessageModal";
 
 export default function ServiceDetail() {
+  const [isMessageModalOpen, setMessageModalOpen] = useState(false);
   const [match, params] = useRoute("/servico/:id");
   const id = parseInt(params?.id || "0");
   const { data: service, isLoading, error } = useService(id);
+  const { data: reviews, isLoading: reviewsLoading } = useReviews(id);
+  const sendMessage = useSendMessage();
 
   if (isLoading) return <div className="h-screen flex items-center justify-center text-primary font-medium">Carregando...</div>;
   if (error || !service) return <div className="h-screen flex items-center justify-center text-red-500">Serviço não encontrado</div>;
@@ -56,7 +63,7 @@ export default function ServiceDetail() {
               <Star className="w-4 h-4 text-yellow-500 fill-current mr-1.5" />
               <span className="text-sm font-bold text-yellow-700">{service.rating}</span>
             </div>
-            <span className="text-xs text-gray-400 mt-1">12 avaliações</span>
+            <span className="text-xs text-gray-400 mt-1">{reviews?.length || 0} avaliações</span>
           </div>
         </div>
 
@@ -94,37 +101,80 @@ export default function ServiceDetail() {
 
         <div className="mt-8 mb-4">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Avaliações Recentes</h2>
-          <div className="space-y-4">
-            {[1, 2].map((i) => (
-              <div key={i} className="border-b border-gray-100 pb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-sm text-gray-800">Cliente Satisfeito</span>
-                  <div className="flex text-yellow-400">
-                    {[1,2,3,4,5].map(s => <Star key={s} className="w-3 h-3 fill-current" />)}
+          {reviewsLoading ? (
+            <div className="text-sm text-gray-500">Carregando avaliações...</div>
+          ) : reviews && reviews.length > 0 ? (
+            <div className="space-y-4">
+              {reviews.map((review) => (
+                <div key={review.id} className="border-b border-gray-100 pb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                        {review.author.avatar ? (
+                          <img src={review.author.avatar} alt={review.author.name} className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                          <span className="text-sm font-bold text-gray-600">{review.author.name.charAt(0)}</span>
+                        )}
+                      </div>
+                      <span className="font-bold text-sm text-gray-800">{review.author.name}</span>
+                    </div>
+                    <div className="flex text-yellow-400">
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <Star
+                          key={i}
+                          className={cn(
+                            "w-3 h-3",
+                            i < review.rating ? "fill-current" : "fill-gray-300"
+                          )}
+                        />
+                      ))}
+                    </div>
                   </div>
+                  <p className="text-xs text-gray-500 pl-11">
+                    {review.comment}
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500">
-                  "Excelente profissional, chegou no horário e fez o serviço com muita qualidade. Recomendo!"
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg border">
+              Nenhuma avaliação ainda. Seja o primeiro a avaliar!
+            </div>
+          )}
         </div>
 
         {/* Sticky Contact Bar */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 md:static md:border-0 md:p-0 md:bg-transparent md:mt-8 z-30">
           <div className="flex gap-3 max-w-4xl mx-auto">
-            <button className="flex-1 bg-white border-2 border-primary text-primary font-bold py-3.5 rounded-xl hover:bg-primary/5 transition-colors flex items-center justify-center">
+            <a
+              href={`tel:${service.contactPhone}`}
+              className="flex-1 bg-white border-2 border-primary text-primary font-bold py-3.5 rounded-xl hover:bg-primary/5 transition-colors flex items-center justify-center"
+            >
               <Phone className="w-5 h-5 mr-2" />
               Ligar
-            </button>
-            <button className="flex-[2] bg-primary text-secondary font-bold py-3.5 rounded-xl hover:brightness-105 transition-all shadow-lg shadow-primary/20 flex items-center justify-center">
+            </a>
+            <button
+              onClick={() => setMessageModalOpen(true)}
+              className="flex-[2] bg-primary text-secondary font-bold py-3.5 rounded-xl hover:brightness-105 transition-all shadow-lg shadow-primary/20 flex items-center justify-center"
+            >
               <MessageSquare className="w-5 h-5 mr-2" />
-              WhatsApp
+              Mensagem
             </button>
           </div>
         </div>
       </div>
+
+      <MessageModal
+        isOpen={isMessageModalOpen}
+        onClose={() => setMessageModalOpen(false)}
+        recipientName={service.name}
+        onSendMessage={(message) => {
+          sendMessage.mutate({
+            recipientId: service.userId,
+            content: message,
+          });
+        }}
+      />
     </div>
   );
 }
