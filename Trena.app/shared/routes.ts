@@ -1,5 +1,14 @@
 import { z } from 'zod';
-import { Conversation, Message, insertProductSchema, insertServiceSchema, products, services, users } from './schema';
+import { 
+  insertProductSchema, 
+  insertServiceSchema, 
+  insertReviewSchema,
+  products, 
+  services, 
+  users, 
+  reviews,
+  type Message 
+} from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -56,6 +65,36 @@ export const api = {
       },
     },
   },
+  reviews: {
+    create: {
+      method: 'POST' as const,
+      path: '/api/reviews',
+      input: insertReviewSchema,
+      responses: {
+        201: z.custom<typeof reviews.$inferSelect>(),
+        400: errorSchemas.validation,
+      },
+    },
+    list: {
+      method: 'GET' as const,
+      path: '/api/reviews/:targetId',
+      responses: {
+        200: z.array(
+          z.object({
+            id: z.number(),
+            rating: z.number(),
+            comment: z.string().nullable(),
+            createdAt: z.coerce.date().nullable(),
+            author: z.object({
+                id: z.number(),
+                name: z.string(),
+                avatar: z.string().nullable(),
+            }),
+          })
+        ),
+      },
+    },
+  },
   services: {
     list: {
       method: 'GET' as const,
@@ -97,7 +136,7 @@ export const api = {
       responses: {
         200: z.array(z.custom<Message>()),
         404: errorSchemas.notFound,
-        403: errorSchemas.internal, // Para acesso negado
+        403: errorSchemas.internal,
       },
     },
     sendMessage: {
@@ -135,13 +174,13 @@ export const api = {
           favorites: z.array(z.custom<typeof products.$inferSelect>()),
         }),
       },
-      products: {
+    },
+    products: {
         method: 'GET' as const,
         path: '/api/me/products',
         responses: {
           200: z.array(z.custom<typeof products.$inferSelect>()),
         },
-      },
     },
     updateMe: {
       method: 'PATCH' as const,

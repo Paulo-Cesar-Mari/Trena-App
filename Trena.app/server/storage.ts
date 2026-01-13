@@ -6,20 +6,23 @@ import {
   services,
   users,
   portfolioItems,
+  reviews,
+  favorites,
+  messages,
   type InsertProduct,
   type InsertService,
   type InsertUser,
   type InsertPortfolioItem,
+  type InsertReview,
+  type InsertMessage,
   type Product,
   type Service,
   type User,
   type PortfolioItem,
-  favorites,
-  messages,
-  type InsertMessage,
+  type Review,
   type Message,
 } from "@shared/schema";
-import { eq, ilike, or, getTableColumns, and, gte, lte, asc } from "drizzle-orm";
+import { eq, ilike, or, getTableColumns, and, gte, lte, desc, asc } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -67,6 +70,18 @@ export interface IStorage {
   // Portfolio
   createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem>;
   getPortfolioItems(userId: number): Promise<PortfolioItem[]>;
+
+  // Reviews
+  createReview(review: InsertReview): Promise<Review>;
+  getReviewsByTarget(targetId: number): Promise<
+    (Review & {
+      author: {
+        id: number;
+        name: string;
+        avatar: string | null;
+      };
+    })[]
+  >;
 
   // Messages
   createMessage(message: InsertMessage): Promise<Message>;
@@ -316,6 +331,29 @@ export class DatabaseStorage implements IStorage {
       .where(eq(portfolioItems.userId, userId));
   }
 
+  // Reviews
+  async createReview(review: InsertReview): Promise<Review> {
+    const [newReview] = await db.insert(reviews).values(review).returning();
+    return newReview;
+  }
+
+  async getReviewsByTarget(targetId: number) {
+    // Usando db.query para trazer o autor junto (relational query)
+    return db.query.reviews.findMany({
+      where: eq(reviews.serviceId, targetId), // Nota: assumindo serviceId baseada no schema anterior
+      with: {
+        author: {
+          columns: {
+            id: true,
+            name: true,
+            avatar: true,
+          }
+        }
+      },
+      orderBy: [desc(reviews.createdAt)],
+    });
+  }
+
   // Messages
   async createMessage(message: InsertMessage): Promise<Message> {
     const [newMessage] = await db.insert(messages).values(message).returning();
@@ -323,8 +361,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]> {
-    // This is a simplified example. In a real app, you'd likely have a
-    // more robust conversation model.
     const messageList = await db
       .select()
       .from(messages)
@@ -334,7 +370,7 @@ export class DatabaseStorage implements IStorage {
           and(eq(messages.senderId, user2Id), eq(messages.receiverId, user1Id))
         )!
       )
-      .orderBy(asc(messages.createdAt));
+      .orderBy(asc(messages.createdAt)); // ou sentAt, dependendo do schema
 
     return messageList;
   }
