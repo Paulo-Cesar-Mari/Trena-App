@@ -7,19 +7,22 @@ import {
   users,
   portfolioItems,
   reviews,
+  favorites,
+  messages,
   type InsertProduct,
   type InsertService,
   type InsertUser,
   type InsertPortfolioItem,
   type InsertReview,
+  type InsertMessage,
   type Product,
   type Service,
   type User,
   type PortfolioItem,
   type Review,
-  favorites,
+  type Message,
 } from "@shared/schema";
-import { eq, ilike, or, getTableColumns, and, gte, lte, desc } from "drizzle-orm";
+import { eq, ilike, or, getTableColumns, and, gte, lte, desc, asc } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -79,6 +82,10 @@ export interface IStorage {
       };
     })[]
   >;
+
+  // Messages
+  createMessage(message: InsertMessage): Promise<Message>;
+  getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]>;
 
   // Session
   sessionStore: session.Store;
@@ -331,8 +338,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getReviewsByTarget(targetId: number) {
+    // Usando db.query para trazer o autor junto (relational query)
     return db.query.reviews.findMany({
-      where: eq(reviews.targetId, targetId),
+      where: eq(reviews.serviceId, targetId), // Nota: assumindo serviceId baseada no schema anterior
       with: {
         author: {
           columns: {
@@ -344,6 +352,27 @@ export class DatabaseStorage implements IStorage {
       },
       orderBy: [desc(reviews.createdAt)],
     });
+  }
+
+  // Messages
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const [newMessage] = await db.insert(messages).values(message).returning();
+    return newMessage;
+  }
+
+  async getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]> {
+    const messageList = await db
+      .select()
+      .from(messages)
+      .where(
+        or(
+          and(eq(messages.senderId, user1Id), eq(messages.receiverId, user2Id)),
+          and(eq(messages.senderId, user2Id), eq(messages.receiverId, user1Id))
+        )!
+      )
+      .orderBy(asc(messages.createdAt)); // ou sentAt, dependendo do schema
+
+    return messageList;
   }
 }
 

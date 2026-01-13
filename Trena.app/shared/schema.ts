@@ -80,12 +80,13 @@ export const messages = pgTable("messages", {
   receiverId: integer("receiver_id").notNull(), // Loja/Prestador respondendo
   content: text("content").notNull(), // "Quanto custa o frete?"
   createdAt: timestamp("created_at").defaultNow(),
+  readAt: timestamp("read_at"),
 });
 
 // --- 5. PORTFÓLIO (Para Lojistas e Prestadores) ---
 export const portfolioItems = pgTable("portfolio_items", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id), // Quem é o dono do portfólio
+  userId: integer("user_id").notNull().references(() => users.id), // Quem é o dono do portfóli
   imageUrl: text("image_url").notNull(), // Onde a imagem está (URL)
   caption: text("caption"), // Uma legenda para a foto
   createdAt: timestamp("created_at").defaultNow(),

@@ -1,5 +1,14 @@
 import { z } from 'zod';
-import { insertProductSchema, insertReviewSchema, insertServiceSchema, products, reviews, services, users } from './schema';
+import { 
+  insertProductSchema, 
+  insertServiceSchema, 
+  insertReviewSchema,
+  products, 
+  services, 
+  users, 
+  reviews,
+  type Message 
+} from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -120,6 +129,29 @@ export const api = {
       },
     },
   },
+  messages: {
+    getMessages: {
+      method: 'GET' as const,
+      path: '/api/messages/user/:id',
+      responses: {
+        200: z.array(z.custom<Message>()),
+        404: errorSchemas.notFound,
+        403: errorSchemas.internal,
+      },
+    },
+    sendMessage: {
+      method: 'POST' as const,
+      path: '/api/messages/user/:id',
+      input: z.object({
+        content: z.string(),
+      }),
+      responses: {
+        201: z.custom<Message>(),
+        404: errorSchemas.notFound,
+        403: errorSchemas.internal,
+      },
+    },
+  },
   users: {
     getProfile: {
       method: 'GET' as const,
@@ -142,13 +174,13 @@ export const api = {
           favorites: z.array(z.custom<typeof products.$inferSelect>()),
         }),
       },
-      products: {
+    },
+    products: {
         method: 'GET' as const,
         path: '/api/me/products',
         responses: {
           200: z.array(z.custom<typeof products.$inferSelect>()),
         },
-      },
     },
     updateMe: {
       method: 'PATCH' as const,
