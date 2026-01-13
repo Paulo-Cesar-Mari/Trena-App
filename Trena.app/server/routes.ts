@@ -198,6 +198,34 @@ export async function registerRoutes(
     res.json(products);
   });
 
+  // MESSAGES
+  app.get(api.messages.getMessages.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const otherUserId = Number(req.params.id);
+    const messages = await storage.getMessagesBetweenUsers(user.id, otherUserId);
+    res.json(messages);
+  });
+
+  app.post(api.messages.sendMessage.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const otherUserId = Number(req.params.id);
+    const { content } = api.messages.sendMessage.input.parse(req.body);
+
+    const message = await storage.createMessage({
+      senderId: user.id,
+      receiverId: otherUserId,
+      content,
+    });
+    res.status(201).json(message);
+  });
+
+
   // Portfolio Upload
   app.post(
     "/api/users/:id/portfolio",

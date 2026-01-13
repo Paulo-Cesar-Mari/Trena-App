@@ -15,8 +15,11 @@ import {
   type User,
   type PortfolioItem,
   favorites,
+  messages,
+  type InsertMessage,
+  type Message,
 } from "@shared/schema";
-import { eq, ilike, or, getTableColumns, and, gte, lte } from "drizzle-orm";
+import { eq, ilike, or, getTableColumns, and, gte, lte, asc } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -64,6 +67,10 @@ export interface IStorage {
   // Portfolio
   createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem>;
   getPortfolioItems(userId: number): Promise<PortfolioItem[]>;
+
+  // Messages
+  createMessage(message: InsertMessage): Promise<Message>;
+  getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]>;
 
   // Session
   sessionStore: session.Store;
@@ -307,6 +314,29 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(portfolioItems)
       .where(eq(portfolioItems.userId, userId));
+  }
+
+  // Messages
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const [newMessage] = await db.insert(messages).values(message).returning();
+    return newMessage;
+  }
+
+  async getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]> {
+    // This is a simplified example. In a real app, you'd likely have a
+    // more robust conversation model.
+    const messageList = await db
+      .select()
+      .from(messages)
+      .where(
+        or(
+          and(eq(messages.senderId, user1Id), eq(messages.receiverId, user2Id)),
+          and(eq(messages.senderId, user2Id), eq(messages.receiverId, user1Id))
+        )!
+      )
+      .orderBy(asc(messages.createdAt));
+
+    return messageList;
   }
 }
 

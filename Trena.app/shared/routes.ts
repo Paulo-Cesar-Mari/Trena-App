@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertProductSchema, insertServiceSchema, products, services, users } from './schema';
+import { Conversation, Message, insertProductSchema, insertServiceSchema, products, services, users } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -87,6 +87,29 @@ export const api = {
       responses: {
         201: z.custom<typeof services.$inferSelect>(),
         400: errorSchemas.validation,
+      },
+    },
+  },
+  messages: {
+    getMessages: {
+      method: 'GET' as const,
+      path: '/api/messages/user/:id',
+      responses: {
+        200: z.array(z.custom<Message>()),
+        404: errorSchemas.notFound,
+        403: errorSchemas.internal, // Para acesso negado
+      },
+    },
+    sendMessage: {
+      method: 'POST' as const,
+      path: '/api/messages/user/:id',
+      input: z.object({
+        content: z.string(),
+      }),
+      responses: {
+        201: z.custom<Message>(),
+        404: errorSchemas.notFound,
+        403: errorSchemas.internal,
       },
     },
   },
