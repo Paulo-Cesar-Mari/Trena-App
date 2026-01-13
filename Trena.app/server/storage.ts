@@ -86,6 +86,7 @@ export interface IStorage {
   // Messages
   createMessage(message: InsertMessage): Promise<Message>;
   getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]>;
+  getConversations(userId: number): Promise<any[]>;
 
   // Session
   sessionStore: session.Store;
@@ -358,7 +359,42 @@ export class DatabaseStorage implements IStorage {
   async createMessage(message: InsertMessage): Promise<Message> {
     const [newMessage] = await db.insert(messages).values(message).returning();
     return newMessage;
-  }
+  },
+
+  getConversations: async (userId: number) => {
+    const userMessages = await db.query.messages.findMany({
+      where: (message, { or, eq }) => or(eq(message.senderId, userId), eq(message.receiverId, userId)),
+      with: {
+        sender: true,
+        receiver: true,
+      },
+      orderBy: (message, { desc }) => desc(message.createdAt),
+    });
+
+    const conversations = new Map<number, { otherUser: any, lastMessage: any }>();
+
+    for (const message of userMessages) {
+      const otherUserId = message.senderId === userId ? message.receiverId : message.senderId;
+      if (!conversations.has(otherUserId)) {
+        const otherUser = message.senderId === userId ? message.receiver : message.sender;
+        conversations.set(otherUserId, {
+          otherUser: {
+            id: otherUser.id,
+            name: otherUser.name,
+            avatar: otherUser.avatar,
+          },
+          lastMessage: {
+            id: message.id,
+            content: message.content,
+            createdAt: message.createdAt,
+            readAt: message.readAt,
+          },
+        });
+      }
+    }
+
+    return Array.from(conversations.values());
+  },
 
   async getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]> {
     const messageList = await db

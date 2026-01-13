@@ -199,6 +199,15 @@ export async function registerRoutes(
   });
 
   // MESSAGES
+  app.get(api.messages.getConversations.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const conversations = await storage.getConversations(user.id);
+    res.json(conversations);
+  });
+
   app.get(api.messages.getMessages.path, async (req, res) => {
     if (!req.user) {
       return res.status(401).json({ message: "Não autenticado" });

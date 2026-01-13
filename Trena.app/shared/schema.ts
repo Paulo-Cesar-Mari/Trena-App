@@ -104,6 +104,29 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
 	}),
 }));
 
+export const messagesRelations = relations(messages, ({ one }) => ({
+  sender: one(users, {
+    fields: [messages.senderId],
+    references: [users.id],
+    relationName: 'sender',
+  }),
+  receiver: one(users, {
+    fields: [messages.receiverId],
+    references: [users.id],
+    relationName: 'sender',
+  }),
+  receiver: one(users, {
+    fields: [messages.receiverId],
+    references: [users.id],
+    relationName: 'sender',
+  }),
+  receiver: one(users, {
+    fields: [messages.receiverId],
+    references: [users.id],
+    relationName: 'receiver',
+  }),
+}));
+
 // --- SCHEMAS E TIPOS ---
 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });

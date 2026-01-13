@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, Search, PlusCircle, User, HardHat } from "lucide-react";
+import { Home, Search, PlusCircle, User, HardHat, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function BottomNav() {
@@ -34,7 +34,8 @@ export function BottomNav() {
               </Link>
             </div>
         </div>
-        <NavItem href="/servicos" icon={HardHat} label="Serviços" />
+        <NavItem href="/inbox" icon={MessageSquare} label="Mensagens" />
+        <NavItem href="/inbox" icon={MessageSquare} label="Mensagens" />
         <NavItem href="/perfil" icon={User} label="Perfil" />
       </div>
     </nav>
@@ -69,6 +70,9 @@ export function DesktopHeader() {
           </Link>
           <Link href="/servicos">
             <span className={cn("text-sm font-medium hover:text-primary transition-colors cursor-pointer", location === "/servicos" && "text-primary")}>Serviços</span>
+          </Link>
+          <Link href="/inbox">
+            <span className={cn("text-sm font-medium hover:text-primary transition-colors cursor-pointer", location === "/inbox" && "text-primary")}>Mensagens</span>
           </Link>
         </nav>
 

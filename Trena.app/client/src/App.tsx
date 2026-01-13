@@ -22,6 +22,7 @@ import StoreProfile from "./pages/StoreProfile";
 import MyListings from "./pages/MyListings";
 import Favorites from "./pages/Favorites";
 import Settings from "./pages/Settings";
+import Inbox from "./pages/Inbox";
 
 function Router() {
   return (
@@ -44,6 +45,8 @@ function Router() {
         <Route path="/meus-anuncios" component={MyListings} />
         <Route path="/favoritos" component={Favorites} />
         <Route path="/configuracoes" component={Settings} />
+        <Route path="/inbox" component={Inbox} />
+        <Route path="/inbox/:id" component={Inbox} />
         <Route component={NotFound} />
       </Switch>
       <BottomNav />
