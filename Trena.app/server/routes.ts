@@ -227,5 +227,37 @@ export async function registerRoutes(
     }
   );
 
+  // Reviews
+  app.post(api.reviews.create.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+
+    try {
+      const input = api.reviews.create.input.parse({
+        ...req.body,
+        authorId: user.id,
+      });
+      const review = await storage.createReview(input);
+      res.status(201).json(review);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join("."),
+        });
+      }
+      throw err;
+    }
+  });
+
+  app.get(api.reviews.list.path, async (req, res) => {
+    const reviews = await storage.getReviewsByTarget(
+      Number(req.params.targetId)
+    );
+    res.json(reviews);
+  });
+
   return httpServer;
 }
