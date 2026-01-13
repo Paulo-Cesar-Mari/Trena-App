@@ -75,7 +75,7 @@ export const api = {
             id: z.number(),
             rating: z.number(),
             comment: z.string().nullable(),
-            createdAt: z.date().nullable(),
+            createdAt: z.coerce.date().nullable(),
             author: z.object({
                 id: z.number(),
                 name: z.string(),
