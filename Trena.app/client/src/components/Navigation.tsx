@@ -35,8 +35,6 @@ export function BottomNav() {
             </div>
         </div>
         <NavItem href="/inbox" icon={MessageSquare} label="Mensagens" />
-        <NavItem href="/inbox" icon={MessageSquare} label="Mensagens" />
-        <NavItem href="/perfil" icon={User} label="Perfil" />
       </div>
     </nav>
   );

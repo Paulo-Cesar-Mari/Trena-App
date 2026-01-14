@@ -189,7 +189,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get(api.users.me.products.path, async (req, res) => {
+  app.get(api.users.products.path, async (req, res) => {
     if (!req.user) {
       return res.status(401).json({ message: "Não autenticado" });
     }
