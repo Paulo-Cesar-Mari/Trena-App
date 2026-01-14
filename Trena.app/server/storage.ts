@@ -88,6 +88,11 @@ export interface IStorage {
   getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]>;
   getConversations(userId: number): Promise<any[]>;
 
+  // Favorites
+  addFavorite(userId: number, productId: number | null, serviceId: number | null): Promise<void>;
+  removeFavorite(userId: number, productId: number | null, serviceId: number | null): Promise<void>;
+  getFavorites(userId: number): Promise<(Product | Service)[]>;
+
   // Session
   sessionStore: session.Store;
 }
@@ -409,6 +414,35 @@ export class DatabaseStorage implements IStorage {
       .orderBy(asc(messages.createdAt)); // ou sentAt, dependendo do schema
 
     return messageList;
+  }
+
+  // Favorites
+  async addFavorite(userId: number, productId: number | null, serviceId: number | null): Promise<void> {
+    if (productId) {
+      await db.insert(favorites).values({ userId, productId });
+    } else if (serviceId) {
+      await db.insert(favorites).values({ userId, serviceId });
+    }
+  }
+
+  async removeFavorite(userId: number, productId: number | null, serviceId: number | null): Promise<void> {
+    if (productId) {
+      await db.delete(favorites).where(and(eq(favorites.userId, userId), eq(favorites.productId, productId)));
+    } else if (serviceId) {
+      await db.delete(favorites).where(and(eq(favorites.userId, userId), eq(favorites.serviceId, serviceId)));
+    }
+  }
+
+  async getFavorites(userId: number): Promise<(Product | Service)[]> {
+    const favoriteItems = await db.query.favorites.findMany({
+      where: eq(favorites.userId, userId),
+      with: {
+        product: true,
+        service: true,
+      },
+    });
+
+    return favoriteItems.map(f => f.product || f.service).filter(item => item !== null) as (Product | Service)[];
   }
 }
 

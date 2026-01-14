@@ -171,6 +171,37 @@ export const api = {
       },
     },
   },
+  favorites: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/favorites',
+      responses: {
+        200: z.array(z.union([z.custom<typeof products.$inferSelect>(), z.custom<typeof services.$inferSelect>()])),
+      },
+    },
+    add: {
+      method: 'POST' as const,
+      path: '/api/favorites',
+      input: z.object({
+        productId: z.number().optional(),
+        serviceId: z.number().optional(),
+      }),
+      responses: {
+        200: z.object({ success: z.boolean() }),
+      },
+    },
+    remove: {
+      method: 'DELETE' as const,
+      path: '/api/favorites',
+      input: z.object({
+        productId: z.number().optional(),
+        serviceId: z.number().optional(),
+      }),
+      responses: {
+        200: z.object({ success: z.boolean() }),
+      },
+    },
+  },
   users: {
     getProfile: {
       method: 'GET' as const,

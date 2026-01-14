@@ -58,9 +58,9 @@ export const services = pgTable("services", {
 // Favoritos (Lista de desejos do cliente)
 export const favorites = pgTable("favorites", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(), // Quem curtiu
-  productId: integer("product_id"), // Se curtiu um produto
-  serviceId: integer("service_id"), // Se curtiu um prestador
+  userId: integer("user_id").notNull().references(() => users.id), // Quem curtiu
+  productId: integer("product_id").references(() => products.id), // Se curtiu um produto
+  serviceId: integer("service_id").references(() => services.id), // Se curtiu um prestador
 });
 
 // Avaliações (Notas e Comentários)
@@ -113,18 +113,23 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   receiver: one(users, {
     fields: [messages.receiverId],
     references: [users.id],
-    relationName: 'sender',
-  }),
-  receiver: one(users, {
-    fields: [messages.receiverId],
-    references: [users.id],
-    relationName: 'sender',
-  }),
-  receiver: one(users, {
-    fields: [messages.receiverId],
-    references: [users.id],
     relationName: 'receiver',
   }),
+}));
+
+export const favoritesRelations = relations(favorites, ({ one }) => ({
+	user: one(users, {
+		fields: [favorites.userId],
+		references: [users.id],
+	}),
+	product: one(products, {
+		fields: [favorites.productId],
+		references: [products.id],
+	}),
+	service: one(services, {
+		fields: [favorites.serviceId],
+		references: [services.id],
+	}),
 }));
 
 // --- SCHEMAS E TIPOS ---
