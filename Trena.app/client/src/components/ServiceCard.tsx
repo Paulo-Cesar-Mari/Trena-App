@@ -1,77 +1,71 @@
+
 import { Link } from "wouter";
-import { Service } from "@shared/schema";
-import { Star, MapPin, Heart } from "lucide-react";
-import { useFavorites } from "../hooks/use-favorites";
-import { Button } from "./ui/button";
-import { cn } from "../lib/utils";
-import { useAuth } from "../hooks/use-auth";
+import { HardHat, MapPin, Star, Heart } from "lucide-react";
+import type { Service } from "@shared/schema";
+import { useFavorites } from "@/hooks/use-favorites";
+import { toast } from "sonner";
 
-interface ServiceCardProps {
-  service: Service;
-}
+export const ServiceCard = ({ service }: { service: Service }) => {
+    const { isFavorite, addFavorite, removeFavorite } = useFavorites();
+    const isServiceFavorite = isFavorite(null, service.id);
 
-export function ServiceCard({ service }: ServiceCardProps) {
-  const { user } = useAuth();
-  const { addFavorite, removeFavorite, isFavorited } = useFavorites();
-  const favorited = isFavorited({ serviceId: service.id });
+    const handleFavoriteClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isServiceFavorite) {
+            removeFavorite.mutate({ serviceId: service.id });
+            toast.error("Serviço removido dos favoritos!");
+        } else {
+            addFavorite.mutate({ serviceId: service.id });
+            toast.success("Serviço adicionado aos favoritos!");
+        }
+    };
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (favorited) {
-      removeFavorite({ serviceId: service.id });
-    } else {
-      addFavorite({ serviceId: service.id });
-    }
-  };
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300 relative">
+            <button
+                onClick={handleFavoriteClick}
+                className="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/50 backdrop-blur-sm hover:bg-white/75 transition-colors"
+            >
+                <Heart className={`w-5 h-5 ${isServiceFavorite ? "text-red-500 fill-red-500" : "text-gray-500"}`} />
+            </button>
+            <Link
+                href={`/servico/${service.id}`}
+                className="flex flex-col flex-grow"
+            >
+                <div className="w-full h-40 bg-gray-200 flex items-center justify-center">
+                    {service.image ? (
+                        <img src={service.image} alt={service.name} className="w-full h-full object-cover" />
+                    ) : (
+                        <HardHat className="w-16 h-16 text-gray-400" />
+                    )}
+                </div>
+                <div className="p-4 flex flex-col flex-grow">
+                    <h3 className="font-bold text-gray-800 text-base leading-tight truncate">
+                        {service.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1 capitalize">{service.serviceType}</p>
+                    <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="truncate">{service.location}</span>
+                    </div>
 
-  return (
-    <div className="relative bg-white border border-gray-100 rounded-2xl overflow-hidden group transition-all hover:shadow-lg hover:border-primary">
-      {user && (
-        <Button
-          size="icon"
-          className={cn(
-            "absolute top-3 right-3 z-10 rounded-full w-8 h-8 bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white",
-            favorited && "text-red-500 bg-white hover:bg-red-50"
-          )}
-          onClick={handleFavoriteClick}
-        >
-          <Heart className={cn("w-4 h-4", favorited && "fill-current")} />
-        </Button>
-      )}
-      <Link href={`/servico/${service.id}`}>
-        <div className="relative w-full aspect-[4/3] bg-gray-100">
-          {service.image ? (
-            <img
-              src={service.image}
-              alt={service.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-secondary text-white text-2xl font-bold">
-              {service.name.charAt(0)}
-            </div>
-          )}
+                    <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                            <span className="font-bold text-gray-800">{Number(service.rating).toFixed(1)}</span>
+                        </div>
+                        {service.hourlyRate && (
+                            <div className="text-right">
+                                <span className="font-bold text-primary text-lg">
+                                    R$ {service.hourlyRate}
+                                </span>
+                                <span className="text-xs text-gray-500"> /hora</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </Link>
         </div>
-        <div className="p-3">
-          <p className="text-sm font-bold text-gray-800 truncate group-hover:text-primary transition-colors">
-            {service.name}
-          </p>
-          <p className="text-xs text-primary font-semibold mt-1">
-            {service.serviceType}
-          </p>
-          <div className="flex justify-between items-center mt-2">
-            <div className="flex items-center text-xs text-gray-500">
-              <MapPin className="w-3 h-3 mr-1" />
-              {service.location}
-            </div>
-            <div className="flex items-center text-xs font-bold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-md">
-              <Star className="w-3 h-3 mr-1 text-yellow-500 fill-current" />
-              {service.rating}
-            </div>
-          </div>
-        </div>
-      </Link>
-    </div>
-  );
-}
+    );
+};

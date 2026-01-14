@@ -149,6 +149,7 @@ export const insertFavoriteSchema = createInsertSchema(favorites).omit({ id: tru
 export const insertReviewSchema = createInsertSchema(reviews).omit({ id: true, createdAt: true });
 export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, createdAt: true });
 export const insertPortfolioItemSchema = createInsertSchema(portfolioItems).omit({ id: true, createdAt: true });
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
 
 export type User = typeof users.$inferSelect;
 export type Product = typeof products.$inferSelect;
@@ -157,6 +158,7 @@ export type Favorite = typeof favorites.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
 export type Message = typeof messages.$inferSelect;
 export type PortfolioItem = typeof portfolioItems.$inferSelect;
+export type Notification = typeof notifications.$inferSelect;
 // --- TIPOS DE INSERÇÃO (Adicione isto no final do arquivo) ---
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
@@ -171,4 +173,14 @@ export const userSessions = pgTable("user_sessions", {
   sid: text("sid").primaryKey(),
   sess: text("sess").notNull(),
   expire: timestamp("expire").notNull(),
+});
+
+// --- 7. NOTIFICAÇÕES (Novidade!) ---
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id), // Pra quem é a notificação
+  message: text("message").notNull(), // "Você tem uma nova mensagem de..."
+  link: text("link").notNull(), // "/inbox/123"
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });

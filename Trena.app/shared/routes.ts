@@ -210,6 +210,7 @@ export const api = {
         200: z.object({
           user: z.custom<typeof users.$inferSelect>(),
           products: z.array(z.custom<typeof products.$inferSelect>()),
+          services: z.array(z.custom<typeof services.$inferSelect>()),
         }),
         404: errorSchemas.notFound,
       },
@@ -239,6 +240,25 @@ export const api = {
       responses: {
         200: z.custom<typeof users.$inferSelect>(),
         400: errorSchemas.validation,
+      },
+    },
+  },
+  notifications: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/notifications',
+      responses: {
+        200: z.array(z.custom<import('./schema').Notification>()),
+      },
+    },
+    markAsRead: {
+      method: 'POST' as const,
+      path: '/api/notifications/read',
+      input: z.object({
+        notificationIds: z.array(z.number()),
+      }),
+      responses: {
+        200: z.object({ success: z.boolean() }),
       },
     },
   },

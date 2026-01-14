@@ -231,8 +231,39 @@ export async function registerRoutes(
       receiverId: otherUserId,
       content,
     });
+
+    // Criar notificação para o destinatário
+    const sender = await storage.getUser(user.id);
+    if (sender) {
+        await storage.createNotification(
+            otherUserId,
+            `Você recebeu uma nova mensagem de ${sender.name}.`,
+            `/inbox/${user.id}`
+        );
+    }
+
     res.status(201).json(message);
   });
+
+  // Notifications
+    app.get(api.notifications.list.path, async (req, res) => {
+        if (!req.user) {
+            return res.status(401).json({ message: "Não autenticado" });
+        }
+        const user = req.user as SelectUser;
+        const notifications = await storage.getNotifications(user.id);
+        res.json(notifications);
+    });
+
+    app.post(api.notifications.markAsRead.path, async (req, res) => {
+        if (!req.user) {
+            return res.status(401).json({ message: "Não autenticado" });
+        }
+        const user = req.user as SelectUser;
+        const { notificationIds } = api.notifications.markAsRead.input.parse(req.body);
+        await storage.markNotificationsAsRead(user.id, notificationIds);
+        res.json({ success: true });
+    });
 
 
   // Portfolio Upload

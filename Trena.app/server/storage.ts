@@ -31,7 +31,13 @@ export interface IStorage {
   getUserProfile(
     id: number
   ): Promise<
-    { user: User; products: Product[]; portfolioItems: PortfolioItem[] } | undefined
+    | {
+        user: User;
+        products: Product[];
+        services: Service[];
+        portfolioItems: PortfolioItem[];
+      }
+    | undefined
   >;
   getCurrentUserProfile(
     id: number
@@ -93,6 +99,10 @@ export interface IStorage {
   removeFavorite(userId: number, productId: number | null, serviceId: number | null): Promise<void>;
   getFavorites(userId: number): Promise<(Product | Service)[]>;
 
+  // Notifications
+  getNotifications(userId: number): Promise<Notification[]>;
+  markNotificationsAsRead(userId: number, notificationIds: number[]): Promise<void>;
+
   // Session
   sessionStore: session.Store;
 }
@@ -124,23 +134,40 @@ export class DatabaseStorage implements IStorage {
   async getUserProfile(
     id: number
   ): Promise<
-    { user: User; products: Product[]; portfolioItems: PortfolioItem[] } | undefined
+    | {
+        user: User;
+        products: Product[];
+        services: Service[];
+        portfolioItems: PortfolioItem[];
+      }
+    | undefined
   > {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     if (!user) {
       return undefined;
     }
 
-    const userProducts = await db
-      .select()
-      .from(products)
-      .where(eq(products.sellerId, id));
+    let userProducts: Product[] = [];
+    let userServices: Service[] = [];
+
+    if (user.role === 'store') {
+      userProducts = await db
+        .select()
+        .from(products)
+        .where(eq(products.sellerId, id));
+    } else if (user.role === 'professional') {
+      userServices = await db
+        .select()
+        .from(services)
+        .where(eq(services.providerId, id));
+    }
 
     const userPortfolioItems = await this.getPortfolioItems(id);
 
     return {
       user,
       products: userProducts,
+      services: userServices,
       portfolioItems: userPortfolioItems,
     };
   }
@@ -443,6 +470,20 @@ export class DatabaseStorage implements IStorage {
     });
 
     return favoriteItems.map(f => f.product || f.service).filter(item => item !== null) as (Product | Service)[];
+  }
+
+  // Notifications
+  async getNotifications(userId: number): Promise<Notification[]> {
+    return await db.select().from(notifications).where(eq(notifications.userId, userId)).orderBy(desc(notifications.createdAt));
+  }
+
+  async markNotificationsAsRead(userId: number, notificationIds: number[]): Promise<void> {
+    if (notificationIds.length === 0) return;
+    await db.update(notifications).set({ isRead: true }).where(and(eq(notifications.userId, userId), or(...notificationIds.map(id => eq(notifications.id, id)))));
+  }
+
+  async createNotification(userId: number, message: string, link: string): Promise<void> {
+    await db.insert(notifications).values({ userId, message, link });
   }
 }
 
