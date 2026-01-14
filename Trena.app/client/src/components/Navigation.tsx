@@ -1,18 +1,25 @@
 import { Link, useLocation } from "wouter";
-import { Home, Search, PlusCircle, User, HardHat, MessageSquare } from "lucide-react";
+import { Home, Search, PlusCircle, User, HardHat, MessageSquare, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNotifications } from "@/hooks/use-notifications";
 
 export function BottomNav() {
   const [location] = useLocation();
+    const { unreadCount } = useNotifications();
 
-  const NavItem = ({ href, icon: Icon, label, className }: { href: string; icon: any; label: string, className?: string }) => {
+  const NavItem = ({ href, icon: Icon, label, className, badge }: { href: string; icon: any; label: string, className?: string, badge?: number }) => {
     const isActive = location === href;
     return (
       <Link href={href} className={cn("flex-1", className)}>
         <div className={cn(
-          "flex flex-col items-center justify-center space-y-1 w-full h-full py-2 px-1 cursor-pointer transition-colors duration-200",
+          "flex flex-col items-center justify-center space-y-1 w-full h-full py-2 px-1 cursor-pointer transition-colors duration-200 relative",
           isActive ? "text-primary" : "text-gray-400 hover:text-gray-600"
         )}>
+            {badge > 0 && (
+                <div className="absolute top-1 right-3 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {badge}
+                </div>
+            )}
           <Icon className={cn("w-6 h-6", isActive && "fill-current")} strokeWidth={isActive ? 2.5 : 2} />
           <span className="text-[10px] font-medium">{label}</span>
         </div>
@@ -35,6 +42,7 @@ export function BottomNav() {
             </div>
         </div>
         <NavItem href="/inbox" icon={MessageSquare} label="Mensagens" />
+        <NavItem href="/notifications" icon={Bell} label="Notificações" badge={unreadCount} />
       </div>
     </nav>
   );
@@ -42,6 +50,7 @@ export function BottomNav() {
 
 export function DesktopHeader() {
   const [location] = useLocation();
+  const { unreadCount } = useNotifications();
 
   return (
     <header className="hidden md:block sticky top-0 z-50 bg-secondary text-white shadow-md">
@@ -79,6 +88,11 @@ export function DesktopHeader() {
             <button className="bg-primary text-secondary px-5 py-2 rounded-lg text-sm font-bold hover:brightness-110 transition-all shadow-lg shadow-primary/20">
               Anunciar
             </button>
+          </Link>
+          <Link href="/notifications">
+            <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
+                <Bell className="w-5 h-5 text-white" />
+            </div>
           </Link>
           <Link href="/perfil">
             <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">

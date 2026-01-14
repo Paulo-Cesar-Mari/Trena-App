@@ -18,11 +18,12 @@ import Profile from "@/pages/Profile";
 import NotFound from "@/pages/not-found";
 import AuthPage from "./pages/auth-page"; // 2. IMPORTAR A PÁGINA DE LOGIN
 import PremiumSignupPage from "./pages/premium-signup";
-import StoreProfile from "./pages/StoreProfile";
+import PublicProfile from "./pages/PublicProfile";
 import MyListings from "./pages/MyListings";
 import Favorites from "./pages/Favorites";
 import Settings from "./pages/Settings";
 import Inbox from "./pages/Inbox";
+import Notifications from "./pages/Notifications";
 
 function Router() {
   return (
@@ -41,12 +42,13 @@ function Router() {
         <Route path="/servico/:id" component={ServiceDetail} />
         <Route path="/anunciar" component={CreateListing} />
         <Route path="/perfil" component={Profile} />
-        <Route path="/loja/:id" component={StoreProfile} />
+        <Route path="/loja/:id" component={PublicProfile} />
         <Route path="/meus-anuncios" component={MyListings} />
         <Route path="/favoritos" component={Favorites} />
         <Route path="/configuracoes" component={Settings} />
         <Route path="/inbox" component={Inbox} />
         <Route path="/inbox/:id" component={Inbox} />
+        <Route path="/notifications" component={Notifications} />
         <Route component={NotFound} />
       </Switch>
       <BottomNav />
