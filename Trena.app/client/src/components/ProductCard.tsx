@@ -1,18 +1,34 @@
-import { MapPin, Store } from "lucide-react";
+import { Heart, MapPin, Store } from "lucide-react";
 import { Link } from "wouter";
 import { type Product } from "@shared/schema";
+import { useFavorites } from "../hooks/use-favorites";
+import { Button } from "./ui/button";
+import { cn } from "../lib/utils";
+import { useAuth } from "../hooks/use-auth";
 
 export function ProductCard({ product }: { product: Product }) {
-  // Format price to BRL
+  const { user } = useAuth();
+  const { addFavorite, removeFavorite, isFavorited } = useFavorites();
+  const favorited = isFavorited({ productId: product.id });
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (favorited) {
+      removeFavorite({ productId: product.id });
+    } else {
+      addFavorite({ productId: product.id });
+    }
+  };
+
   const price = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   }).format(Number(product.price));
 
   return (
-    <Link href={`/produto/${product.id}`}>
-      <div className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 card-hover cursor-pointer h-full flex flex-col">
-        {/* Image Container */}
+    <div className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 card-hover h-full flex flex-col">
+      <Link href={`/produto/${product.id}`} className="flex flex-col flex-grow">
         <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
           {product.image ? (
             <img 
@@ -25,12 +41,23 @@ export function ProductCard({ product }: { product: Product }) {
               <Store className="w-12 h-12 opacity-20" />
             </div>
           )}
-          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-secondary shadow-sm">
+          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-secondary shadow-sm">
             {product.category}
           </div>
+          {user && (
+            <Button
+              size="icon"
+              className={cn(
+                "absolute top-3 right-3 rounded-full w-8 h-8 bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white",
+                favorited && "text-red-500 bg-white hover:bg-red-50"
+              )}
+              onClick={handleFavoriteClick}
+            >
+              <Heart className={cn("w-4 h-4", favorited && "fill-current")} />
+            </Button>
+          )}
         </div>
 
-        {/* Content */}
         <div className="p-4 flex flex-col flex-grow">
           <h3 className="font-semibold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
             {product.title}
@@ -52,7 +79,7 @@ export function ProductCard({ product }: { product: Product }) {
             </div>
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

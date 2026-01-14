@@ -364,9 +364,9 @@ export class DatabaseStorage implements IStorage {
   async createMessage(message: InsertMessage): Promise<Message> {
     const [newMessage] = await db.insert(messages).values(message).returning();
     return newMessage;
-  },
+  }
 
-  getConversations: async (userId: number) => {
+  async getConversations(userId: number): Promise<any[]> {
     const userMessages = await db.query.messages.findMany({
       where: (message, { or, eq }) => or(eq(message.senderId, userId), eq(message.receiverId, userId)),
       with: {
@@ -399,7 +399,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     return Array.from(conversations.values());
-  },
+  }
 
   async getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]> {
     const messageList = await db
