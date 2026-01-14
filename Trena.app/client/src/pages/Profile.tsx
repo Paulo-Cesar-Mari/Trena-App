@@ -92,7 +92,6 @@ export default function Profile() {
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-around">
           <StatBox label="Anúncios" value={profileData?.products?.length || 0} />
           <StatBox label="Favoritos" value={profileData?.favorites?.length || 0} />
-          <StatBox label="Avaliações" value={0} />
         </div>
 
         <div className="pt-4 space-y-3">
@@ -135,12 +134,12 @@ const StatBox = ({ label, value }: { label: string; value: number | string }) =>
     </div>
 );
 
-const ProfileButton = ({ icon: Icon, label, href }: { icon: React.ElementType, label: string, href:string }) => {
-    const [, setLocation] = useLocation();
+import { Link } from "wouter";
 
+const ProfileButton = ({ icon: Icon, label, href }: { icon: React.ElementType, label: string, href:string }) => {
     return (
-        <button
-            onClick={() => setLocation(href)}
+        <Link
+            href={href}
             className="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-gray-800 font-bold flex items-center gap-4 hover:bg-gray-50 transition-colors"
         >
             <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
@@ -148,7 +147,7 @@ const ProfileButton = ({ icon: Icon, label, href }: { icon: React.ElementType, l
             </div>
             <span className="flex-1 text-left">{label}</span>
             <ChevronRight className="w-5 h-5 text-gray-400" />
-        </button>
+        </Link>
     )
 };
 
