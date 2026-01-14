@@ -296,5 +296,35 @@ export async function registerRoutes(
     res.json(reviews);
   });
 
+  // Favorites
+  app.get(api.favorites.list.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const favorites = await storage.getFavorites(user.id);
+    res.json(favorites);
+  });
+
+  app.post(api.favorites.add.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const { productId, serviceId } = api.favorites.add.input.parse(req.body);
+    await storage.addFavorite(user.id, productId ?? null, serviceId ?? null);
+    res.json({ success: true });
+  });
+
+  app.delete(api.favorites.remove.path, async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Não autenticado" });
+    }
+    const user = req.user as SelectUser;
+    const { productId, serviceId } = api.favorites.remove.input.parse(req.body);
+    await storage.removeFavorite(user.id, productId ?? null, serviceId ?? null);
+    res.json({ success: true });
+  });
+
   return httpServer;
 }

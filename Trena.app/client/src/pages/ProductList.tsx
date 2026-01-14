@@ -3,7 +3,6 @@ import { Search, SlidersHorizontal, PackageOpen } from "lucide-react";
 import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/ProductCard";
 import { useLocation } from "wouter";
-import { Filter } from "@/components/ui/Filter";
 
 const defaultFilters = {
   priceMin: 0,

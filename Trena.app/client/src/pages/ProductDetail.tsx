@@ -1,4 +1,5 @@
 import { useProduct } from "@/hooks/use-products";
+import { useFavorites } from "@/hooks/use-favorites";
 import { useRoute, Link } from "wouter";
 import { ArrowLeft, Share2, MapPin, Store, Heart, MessageCircle, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -7,6 +8,15 @@ export default function ProductDetail() {
   const [match, params] = useRoute("/produto/:id");
   const id = parseInt(params?.id || "0");
   const { data: product, isLoading, error } = useProduct(id);
+  const { isFavorited, addFavorite, removeFavorite } = useFavorites();
+
+  const handleFavoriteClick = () => {
+    if (isFavorited({ productId: id })) {
+      removeFavorite({ productId: id });
+    } else {
+      addFavorite({ productId: id });
+    }
+  };
 
   if (isLoading) return <div className="h-screen flex items-center justify-center text-primary font-medium">Carregando...</div>;
   if (error || !product) return <div className="h-screen flex items-center justify-center text-red-500">Produto não encontrado</div>;
@@ -29,8 +39,16 @@ export default function ProductDetail() {
           <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
             <Share2 className="w-5 h-5 text-gray-700" />
           </button>
-          <button className="p-2 -mr-2 hover:bg-gray-100 rounded-full transition-colors">
-            <Heart className="w-5 h-5 text-gray-700" />
+          <button
+            onClick={handleFavoriteClick}
+            className="p-2 -mr-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <Heart
+              className={cn(
+                "w-5 h-5",
+                isFavorited({ productId: id }) ? "text-red-500 fill-current" : "text-gray-700"
+              )}
+            />
           </button>
         </div>
       </div>

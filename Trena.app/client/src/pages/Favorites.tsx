@@ -1,23 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
-import { Product } from "@shared/schema";
+import { useFavorites } from "@/hooks/use-favorites";
+import { Product, Service } from "@shared/schema";
 import { ProductCard } from "@/components/ProductCard";
-import { api } from "@shared/routes";
+import { ServiceCard } from "@/components/ServiceCard";
 import { Heart } from "lucide-react";
 import { useLocation } from "wouter";
 
-const getMyFavorites = async () => {
-  const response = await fetch(api.users.me.favorites.path);
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return response.json() as Promise<Product[]>;
-};
-
 export default function Favorites() {
-  const { data: products, isLoading, error } = useQuery({
-    queryKey: ["my-favorites"],
-    queryFn: getMyFavorites,
-  });
+  const { data: favorites, isLoading, error } = useFavorites();
   const [, setLocation] = useLocation();
 
   if (isLoading) {
@@ -28,7 +17,7 @@ export default function Favorites() {
     return <div>Ocorreu um erro ao carregar seus favoritos.</div>;
   }
 
-  if (!products || products.length === 0) {
+  if (!favorites || favorites.length === 0) {
     return (
       <div className="text-center bg-gray-50 rounded-2xl p-6 sm:p-12">
         <div className="w-16 h-16 bg-white border border-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -53,9 +42,13 @@ export default function Favorites() {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
+      {favorites.map((item) => {
+        if ("sellerId" in item) {
+          return <ProductCard key={`product-${item.id}`} product={item as Product} />;
+        } else {
+          return <ServiceCard key={`service-${item.id}`} service={item as Service} />;
+        }
+      })}
     </div>
   );
 }

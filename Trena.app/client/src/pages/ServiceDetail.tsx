@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useService } from "@/hooks/use-services";
+import { useFavorites } from "@/hooks/use-favorites";
 import { useReviews } from "@/hooks/use-reviews";
-import { useSendMessage } from "@/hooks/use-messages";
 import { useRoute, Link } from "wouter";
-import { ArrowLeft, Share2, MapPin, Star, Phone, MessageSquare, Award, Clock } from "lucide-react";
+import { ArrowLeft, Share2, MapPin, Star, Phone, MessageSquare, Award, Clock, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MessageModal } from "@/components/MessageModal";
 
@@ -14,6 +14,15 @@ export default function ServiceDetail() {
   const { data: service, isLoading, error } = useService(id);
   const { data: reviews, isLoading: reviewsLoading } = useReviews(id);
   const sendMessage = useSendMessage();
+  const { isFavorited, addFavorite, removeFavorite } = useFavorites();
+
+  const handleFavoriteClick = () => {
+    if (isFavorited({ serviceId: id })) {
+      removeFavorite({ serviceId: id });
+    } else {
+      addFavorite({ serviceId: id });
+    }
+  };
 
   if (isLoading) return <div className="h-screen flex items-center justify-center text-primary font-medium">Carregando...</div>;
   if (error || !service) return <div className="h-screen flex items-center justify-center text-red-500">Serviço não encontrado</div>;
@@ -33,9 +42,22 @@ export default function ServiceDetail() {
               <ArrowLeft className="w-6 h-6" />
             </button>
           </Link>
-          <button className="p-2 -mr-2 hover:bg-white/10 rounded-full transition-colors backdrop-blur-sm">
-            <Share2 className="w-6 h-6" />
-          </button>
+          <div className="flex gap-2">
+            <button className="p-2 hover:bg-white/10 rounded-full transition-colors backdrop-blur-sm">
+              <Share2 className="w-6 h-6" />
+            </button>
+            <button
+              onClick={handleFavoriteClick}
+              className="p-2 -mr-2 hover:bg-white/10 rounded-full transition-colors backdrop-blur-sm"
+            >
+              <Heart
+                className={cn(
+                  "w-6 h-6",
+                  isFavorited({ serviceId: id }) ? "text-red-500 fill-current" : ""
+                )}
+              />
+            </button>
+          </div>
         </div>
 
         {/* Profile Info in Header */}

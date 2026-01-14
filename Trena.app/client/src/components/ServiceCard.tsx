@@ -1,51 +1,45 @@
-import { MapPin, Star, User } from "lucide-react";
 import { Link } from "wouter";
-import { type Service } from "@shared/schema";
+import { Service } from "@shared/schema";
+import { Star, MapPin } from "lucide-react";
 
-export function ServiceCard({ service }: { service: Service }) {
+interface ServiceCardProps {
+  service: Service;
+}
+
+export function ServiceCard({ service }: ServiceCardProps) {
   return (
-    <Link href={`/servico/${service.id}`}>
-      <div className="group bg-white rounded-2xl p-5 shadow-sm border border-gray-100 card-hover cursor-pointer flex items-start space-x-4">
-        {/* Avatar */}
-        <div className="w-16 h-16 rounded-full bg-gray-100 flex-shrink-0 overflow-hidden border-2 border-primary/20">
-          {service.image ? (
-            <img src={service.image} alt={service.name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-secondary text-white">
-              <span className="text-xl font-bold">{service.name.charAt(0)}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="font-bold text-secondary truncate group-hover:text-primary transition-colors">
-                {service.name}
-              </h3>
-              <p className="text-sm text-gray-500 font-medium">{service.serviceType}</p>
-            </div>
-            <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-full border border-yellow-100">
-              <Star className="w-3 h-3 text-yellow-500 fill-current mr-1" />
-              <span className="text-xs font-bold text-yellow-700">{service.rating}</span>
-            </div>
+    <Link
+      href={`/servico/${service.id}`}
+      className="bg-white border border-gray-100 rounded-2xl overflow-hidden group transition-all hover:shadow-lg hover:border-primary"
+    >
+      <div className="relative w-full aspect-[4/3] bg-gray-100">
+        {service.image ? (
+          <img
+            src={service.image}
+            alt={service.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-secondary text-white text-2xl font-bold">
+            {service.name.charAt(0)}
           </div>
-
-          <div className="mt-3 flex items-center text-xs text-gray-500">
-            <MapPin className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
-            <span className="truncate">{service.location}</span>
+        )}
+      </div>
+      <div className="p-3">
+        <p className="text-sm font-bold text-gray-800 truncate group-hover:text-primary transition-colors">
+          {service.name}
+        </p>
+        <p className="text-xs text-primary font-semibold mt-1">
+          {service.serviceType}
+        </p>
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex items-center text-xs text-gray-500">
+            <MapPin className="w-3 h-3 mr-1" />
+            {service.location}
           </div>
-
-          <div className="mt-3 flex gap-2">
-             <span className="inline-block px-2 py-1 bg-gray-100 rounded text-[10px] font-medium text-gray-600">
-               Orçamento Grátis
-             </span>
-             {service.hourlyRate && (
-               <span className="inline-block px-2 py-1 bg-green-50 rounded text-[10px] font-medium text-green-700">
-                 A partir de R$ {service.hourlyRate}/h
-               </span>
-             )}
+          <div className="flex items-center text-xs font-bold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-md">
+            <Star className="w-3 h-3 mr-1 text-yellow-500 fill-current" />
+            {service.rating}
           </div>
         </div>
       </div>

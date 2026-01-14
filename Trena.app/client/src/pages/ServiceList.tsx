@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Search, MapPin, HardHat } from "lucide-react";
 import { useServices } from "@/hooks/use-services";
 import { ServiceCard } from "@/components/ServiceCard";
-import { Filter } from "@/components/ui/Filter";
 
 const defaultFilters = {
   ratingMin: 0,
