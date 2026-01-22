@@ -7,9 +7,8 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { api, buildUrl } from "@shared/routes";
-import { queryClient } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/useAuth";
+import { queryClient, api } from "../lib/queryClient";
+import { useAuth } from "../hooks/use-auth";
 import { useParams } from "wouter";
 
 const messageSchema = z.object({
@@ -24,17 +23,27 @@ const ChatView = () => {
   const { data: messages, isLoading } = useQuery({
     queryKey: ["messages", otherUserId],
     queryFn: async () => {
-      const url = buildUrl(api.messages.getMessages.path, { id: otherUserId });
-      const res = await queryClient.get(url);
-      return res;
+      const res = await api.messages[":id"].$get({
+        param: { id: otherUserId.toString() },
+      });
+      if (!res.ok) {
+        throw new Error("Failed to fetch messages");
+      }
+      return await res.json();
     },
     enabled: !!user && !!otherUserId,
   });
 
   const mutation = useMutation({
-    mutationFn: async (newMessage: { content: string }) => {
-      const url = buildUrl(api.messages.sendMessage.path, { id: otherUserId });
-      await queryClient.post(url, newMessage);
+    mutationFn: async (newMessage: z.infer<typeof messageSchema>) => {
+      const res = await api.messages[":id"].$post({
+        param: { id: otherUserId.toString() },
+        json: newMessage,
+      });
+      if (!res.ok) {
+        throw new Error("Failed to send message");
+      }
+      return await res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages", otherUserId] });

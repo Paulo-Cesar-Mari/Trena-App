@@ -5,7 +5,7 @@ import { useReviews } from "@/hooks/use-reviews";
 import { useRoute, Link } from "wouter";
 import { ArrowLeft, Share2, MapPin, Star, Phone, MessageSquare, Award, Clock, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
-import MessageModal, { useSendMessage } from "@/components/MessageModal";
+import MessageModal, { useSendMessage } from "../components/MessageModal";
 
 export default function ServiceDetail() {
   const [isMessageModalOpen, setMessageModalOpen] = useState(false);
@@ -13,7 +13,7 @@ export default function ServiceDetail() {
   const id = parseInt(params?.id || "0");
   const { data: service, isLoading, error } = useService(id);
   const { data: reviews, isLoading: reviewsLoading } = useReviews(id);
-  const sendMessage = useSendMessage();
+  const { sendMessage } = useSendMessage();
   const { isFavorited, addFavorite, removeFavorite } = useFavorites();
 
   const handleFavoriteClick = () => {
@@ -34,7 +34,7 @@ export default function ServiceDetail() {
         {/* Placeholder banner */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60 z-10" />
         <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center" />
-        
+
         {/* Nav */}
         <div className="absolute top-0 left-0 right-0 z-20 px-4 py-3 flex justify-between items-center text-white">
           <Link href="/servicos">

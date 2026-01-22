@@ -15,7 +15,7 @@ export function BottomNav() {
           "flex flex-col items-center justify-center space-y-1 w-full h-full py-2 px-1 cursor-pointer transition-colors duration-200 relative",
           isActive ? "text-primary" : "text-gray-400 hover:text-gray-600"
         )}>
-            {badge > 0 && (
+            {badge && badge > 0 && (
                 <div className="absolute top-1 right-3 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {badge}
                 </div>

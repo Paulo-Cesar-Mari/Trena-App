@@ -33,7 +33,7 @@ export default function Settings() {
     mutationFn: updateUser,
     onSuccess: (updatedUser) => {
         // Invalida a query de perfil para refetch
-        queryClient.invalidateQueries({ queryKey: ['profile'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/user'] });
         // Atualiza o usuário no hook de autenticação
         refetchUser();
     },

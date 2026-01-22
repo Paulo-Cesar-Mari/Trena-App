@@ -235,11 +235,11 @@ export async function registerRoutes(
     // Criar notificação para o destinatário
     const sender = await storage.getUser(user.id);
     if (sender) {
-        await storage.createNotification(
-            otherUserId,
-            `Você recebeu uma nova mensagem de ${sender.name}.`,
-            `/inbox/${user.id}`
-        );
+        await storage.createNotification({
+            userId: otherUserId,
+            message: `Você recebeu uma nova mensagem de ${sender.name}.`,
+            link: `/inbox/${user.id}`,
+        });
     }
 
     res.status(201).json(message);

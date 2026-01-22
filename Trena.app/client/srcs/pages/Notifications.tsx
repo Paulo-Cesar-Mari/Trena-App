@@ -1,28 +1,29 @@
 
-import { Bell, ArrowLeft } from 'lucide-react';
+import { Bell, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Link } from 'wouter';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useEffect } from 'react';
 import { Notification } from '@shared/schema';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-
 
 export default function Notifications() {
     const { data: notifications, isLoading, error, markAsReadMutation, unreadCount } = useNotifications();
 
+    const handleMarkAllAsRead = () => {
+        const unreadIds = notifications?.filter((n: Notification) => !n.isRead).map((n: Notification) => n.id) || [];
+        if (unreadIds.length > 0) {
+            markAsReadMutation.mutate(unreadIds);
+        }
+    };
+
     // Mark notifications as read when the page is visited
     useEffect(() => {
-        if (notifications && unreadCount > 0) {
-            const unreadIds = notifications.filter(n => !n.isRead).map(n => n.id);
+        if (unreadCount > 0) {
+            const unreadIds = notifications?.filter((n: Notification) => !n.isRead).map((n: Notification) => n.id) || [];
             if (unreadIds.length > 0) {
-                // Use a timeout to avoid a flash of state change
-                setTimeout(() => {
-                    markAsReadMutation.mutate(unreadIds);
-                }, 1000);
+                markAsReadMutation.mutate(unreadIds);
             }
         }
-    }, [notifications, unreadCount, markAsReadMutation]);
+    }, [notifications]);
 
     return (
         <div className="pb-24 min-h-screen bg-gray-50">
@@ -53,7 +54,7 @@ export default function Notifications() {
                     </div>
                 )}
 
-                {notifications?.map(notification => (
+                {notifications?.map((notification: Notification) => (
                     <NotificationItem key={notification.id} notification={notification} />
                 ))}
             </div>
@@ -72,7 +73,7 @@ const NotificationItem = ({ notification }: { notification: Notification }) => (
                     {notification.message}
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                    {notification.createdAt ? formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: ptBR }) : ''}
+                    {new Date(notification.createdAt).toLocaleString()}
                 </p>
             </div>
             {!notification.isRead && (

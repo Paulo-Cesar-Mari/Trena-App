@@ -9,13 +9,14 @@ import { useLocation } from "wouter";
 // Tipos para ajudar o TypeScript
 type InsertUser = z.infer<typeof insertUserSchema>;
 
-type AuthContextType = {
+export type AuthContextType = {
   user: SelectUser | null;
   isLoading: boolean;
   error: Error | null;
   loginMutation: any;
   logoutMutation: any;
   registerMutation: any;
+  refetchUser: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -29,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     data: user,
     error,
     isLoading,
+    refetch: refetchUser,
   } = useQuery<SelectUser | undefined, Error>({
     queryKey: ["/api/user"],
     queryFn: async () => {
@@ -121,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginMutation,
         logoutMutation,
         registerMutation,
+        refetchUser,
       }}
     >
       {children}
