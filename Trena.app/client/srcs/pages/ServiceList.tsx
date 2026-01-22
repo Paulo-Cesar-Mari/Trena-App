@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search, MapPin, HardHat } from "lucide-react";
 import { useServices } from "@/hooks/use-services";
 import { ServiceCard } from "@/components/ServiceCard";
-import Filter from "@/components/Filter";
+import Filter from "../components/Filter";
 
 const defaultFilters = {
   ratingMin: 0,
@@ -15,9 +15,9 @@ export default function ServiceList() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [filters, setFilters] = useState(defaultFilters);
-  
-  const { data: services, isLoading } = useServices({ 
-    search: search || undefined, 
+
+  const { data: services, isLoading } = useServices({
+    search: search || undefined,
     category: category || undefined,
     ...filters,
   });
@@ -44,9 +44,9 @@ export default function ServiceList() {
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6">
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Buscar profissional (ex: Pedreiro, João...)" 
+          <input
+            type="text"
+            placeholder="Buscar profissional (ex: Pedreiro, João...)"
             className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -54,12 +54,12 @@ export default function ServiceList() {
         </div>
         <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
-            <button 
+            <button
               key={cat}
               onClick={() => setCategory(category === cat ? "" : cat)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
-                category === cat 
-                  ? "bg-primary/10 text-primary-foreground border-primary/20" 
+                category === cat
+                  ? "bg-primary/10 text-primary-foreground border-primary/20"
                   : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
               }`}
             >

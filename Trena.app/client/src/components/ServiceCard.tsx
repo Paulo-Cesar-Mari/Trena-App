@@ -6,18 +6,16 @@ import { useFavorites } from "@/hooks/use-favorites";
 import { toast } from "sonner";
 
 export const ServiceCard = ({ service }: { service: Service }) => {
-    const { isFavorite, addFavorite, removeFavorite } = useFavorites();
-    const isServiceFavorite = isFavorite(null, service.id);
+    const { isFavorited, addFavorite, removeFavorite } = useFavorites();
+    const isServiceFavorite = isFavorited({ serviceId: service.id });
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         if (isServiceFavorite) {
-            removeFavorite.mutate({ serviceId: service.id });
-            toast.error("Serviço removido dos favoritos!");
+            removeFavorite({ serviceId: service.id });
         } else {
-            addFavorite.mutate({ serviceId: service.id });
-            toast.success("Serviço adicionado aos favoritos!");
+            addFavorite({ serviceId: service.id });
         }
     };
 

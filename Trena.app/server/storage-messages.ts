@@ -1,123 +1,134 @@
 import { db } from "./db";
-import { conversations, messages, participants, users } from "@shared/schema";
-import type { InsertConversation, InsertMessage, InsertParticipant } from "@shared/schema";
-import { and, eq, inArray, ne } from "drizzle-orm";
+import { messages, users } from "@shared/schema";
+import type { InsertMessage } from "@shared/schema";
+import { and, eq, or, desc } from "drizzle-orm";
+import { sql } from 'drizzle-orm';
 
-export type ConversationWithParticipants = Awaited<ReturnType<typeof storageMessages.getConversation>>;
-export type MessageWithSender = Awaited<ReturnType<typeof storageMessages.getMessagesForConversation>>[0];
+// A "conversation" is now represented by the other user you're talking to.
+export type Conversation = {
+    otherUser: {
+        id: number;
+        name: string;
+        avatar: string | null;
+    };
+    lastMessage: {
+        id: number;
+        content: string;
+        createdAt: Date | null;
+        senderId: number;
+    };
+    unreadCount: number;
+};
+
+export type MessageWithSender = Awaited<ReturnType<typeof storageMessages.getMessagesBetweenUsers>>[0];
 
 export const storageMessages = {
-    async createConversation(participantIds: number[]) {
-        const [conversation] = await db
-            .insert(conversations)
-            .values({})
-            .returning();
+    /**
+     * Retrieves a list of conversations for a given user.
+     * A conversation is defined by the other participant and includes the last message.
+     */
+    async getConversationsForUser(userId: number): Promise<Conversation[]> {
+        // 1. Find all users this user has messaged with.
+        const sentMessages = await db.selectDistinct({ otherUserId: messages.receiverId }).from(messages).where(eq(messages.senderId, userId));
+        const receivedMessages = await db.selectDistinct({ otherUserId: messages.senderId }).from(messages).where(eq(messages.receiverId, userId));
 
-        const participantsData = participantIds.map(userId => ({
-            userId,
-            conversationId: conversation.id,
-        }));
+        const otherUserIds = Array.from(new Set([
+            ...sentMessages.map(m => m.otherUserId),
+            ...receivedMessages.map(m => m.otherUserId)
+        ]));
 
-        await db.insert(participants).values(participantsData);
-
-        return conversation;
-    },
-
-    async getConversation(conversationId: number, userId: number) {
-        // Primeiro, verifique se o usuário é um participante
-        const participantCheck = await db
-            .select()
-            .from(participants)
-            .where(
-                and(
-                    eq(participants.conversationId, conversationId),
-                    eq(participants.userId, userId)
-                )
-            )
-            .limit(1);
-
-        if (participantCheck.length === 0) {
-            return null; // O usuário não tem permissão para ver esta conversa
+        if (otherUserIds.length === 0) {
+            return [];
         }
 
-        const conversation = await db.query.conversations.findFirst({
-            where: eq(conversations.id, conversationId),
-            with: {
-                participants: {
-                    with: {
-                        user: true,
-                    },
-                },
-            },
-        });
+        // 2. For each "other user", get the last message, their details, and unread count.
+        const conversations: Conversation[] = [];
+        for (const otherUserId of otherUserIds) {
+            const lastMessage = await db.query.messages.findFirst({
+                where: or(
+                    and(eq(messages.senderId, userId), eq(messages.receiverId, otherUserId)),
+                    and(eq(messages.senderId, otherUserId), eq(messages.receiverId, userId))
+                ),
+                orderBy: [desc(messages.createdAt)],
+            });
 
-        return conversation;
-    },
-
-    async getConversationsForUser(userId: number) {
-        const userConversations = await db.query.participants.findMany({
-            where: eq(participants.userId, userId),
-            with: {
-                conversation: {
-                    with: {
-                        participants: {
-                            with: {
-                                user: {
-                                    columns: {
-                                        id: true,
-                                        name: true,
-                                        avatar: true,
-                                    }
-                                }
-                            }
-                        },
-                        messages: {
-                            orderBy: (messages, { desc }) => [desc(messages.createdAt)],
-                            limit: 1,
-                        }
-                    }
+            const otherUser = await db.query.users.findFirst({
+                where: eq(users.id, otherUserId),
+                columns: {
+                    id: true,
+                    name: true,
+                    avatar: true,
                 }
-            }
-        });
+            });
 
-        return userConversations.map(p => p.conversation);
+            const unreadResult = await db.select({
+                count: sql<number>`count(*)`
+            }).from(messages)
+            .where(and(
+                eq(messages.receiverId, userId),
+                eq(messages.senderId, otherUserId),
+                sql`"read_at" IS NULL`
+            ));
+
+            const unreadCount = unreadResult[0]?.count || 0;
+
+            if (lastMessage && otherUser) {
+                conversations.push({
+                    otherUser: {
+                        id: otherUser.id,
+                        name: otherUser.name,
+                        avatar: otherUser.avatar,
+                    },
+                    lastMessage: {
+                        id: lastMessage.id,
+                        content: lastMessage.content,
+                        createdAt: lastMessage.createdAt,
+                        senderId: lastMessage.senderId,
+                    },
+                    unreadCount,
+                });
+            }
+        }
+
+        // Sort conversations by the date of the last message
+        return conversations.sort((a, b) => {
+            if (!a.lastMessage.createdAt) return 1;
+            if (!b.lastMessage.createdAt) return -1;
+            return b.lastMessage.createdAt.getTime() - a.lastMessage.createdAt.getTime();
+        });
     },
 
-    async createMessage(message: { conversationId: number, senderId: number, content: string }) {
+    /**
+     * Creates a new message.
+     */
+    async createMessage(message: Omit<InsertMessage, 'readAt' | 'createdAt' | 'id'>) {
+        if (message.senderId === message.receiverId) {
+            throw new Error("Sender and receiver cannot be the same user.");
+        }
         const [newMessage] = await db.insert(messages).values(message).returning();
         return newMessage;
     },
 
-    async getMessagesForConversation(conversationId: number, userId: number) {
-        // Verifique se o usuário é um participante antes de buscar as mensagens
-        const participantCheck = await db
-            .select()
-            .from(participants)
-            .where(
-                and(
-                    eq(participants.conversationId, conversationId),
-                    eq(participants.userId, userId)
-                )
-            )
-            .limit(1);
-
-        if (participantCheck.length === 0) {
-            throw new Error("Acesso negado"); // Ou retorne um array vazio
-        }
-
-        // Marcar mensagens como lidas
+    /**
+     * Retrieves all messages between two users and marks them as read.
+     */
+    async getMessagesBetweenUsers(currentUserId: number, otherUserId: number) {
+        // Mark messages sent by the other user to the current user as read
         await db.update(messages)
             .set({ readAt: new Date() })
             .where(
                 and(
-                    eq(messages.conversationId, conversationId),
-                    ne(messages.senderId, userId) // Marcar as que o *outro* usuário enviou
+                    eq(messages.senderId, otherUserId),
+                    eq(messages.receiverId, currentUserId),
+                    sql`"read_at" IS NULL`
                 )
             );
 
-
         const conversationMessages = await db.query.messages.findMany({
-            where: eq(messages.conversationId, conversationId),
+            where: or(
+                and(eq(messages.senderId, currentUserId), eq(messages.receiverId, otherUserId)),
+                and(eq(messages.senderId, otherUserId), eq(messages.receiverId, currentUserId))
+            ),
             with: {
                 sender: {
                     columns: {

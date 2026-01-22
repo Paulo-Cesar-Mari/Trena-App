@@ -27,7 +27,7 @@ export async function seedDatabase() {
   // --- 1. GERAR USUÁRIOS ---
   const userTypes: InsertUser['role'][] = [
     ...Array(8).fill('store'),      // 8 Lojas
-    ...Array(7).fill('provider'),   // 7 Prestadores
+    ...Array(7).fill('professional'),   // 7 Prestadores
     ...Array(5).fill('consumer'),   // 5 Consumidores
   ];
 
@@ -40,7 +40,6 @@ export async function seedDatabase() {
       password: "password", // Senha simples para teste
       name: faker.person.fullName(),
       role: role,
-      email: faker.internet.email(),
       location: `${faker.location.city()}, ${faker.location.state({ abbreviated: true })}`,
       bio: faker.lorem.sentence(),
       avatar: faker.image.avatar(),

@@ -21,8 +21,11 @@ import {
   type PortfolioItem,
   type Review,
   type Message,
+  notifications,
+  Notification,
+  InsertNotification,
 } from "@shared/schema";
-import { eq, ilike, or, getTableColumns, and, gte, lte, desc, asc } from "drizzle-orm";
+import { eq, ilike, or, getTableColumns, and, gte, lte, desc, asc, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -102,6 +105,7 @@ export interface IStorage {
   // Notifications
   getNotifications(userId: number): Promise<Notification[]>;
   markNotificationsAsRead(userId: number, notificationIds: number[]): Promise<void>;
+  createNotification(notification: InsertNotification): Promise<void>;
 
   // Session
   sessionStore: session.Store;
@@ -373,7 +377,7 @@ export class DatabaseStorage implements IStorage {
   async getReviewsByTarget(targetId: number) {
     // Usando db.query para trazer o autor junto (relational query)
     return db.query.reviews.findMany({
-      where: eq(reviews.serviceId, targetId), // Nota: assumindo serviceId baseada no schema anterior
+      where: eq(reviews.targetId, targetId), // Nota: assumindo serviceId baseada no schema anterior
       with: {
         author: {
           columns: {
@@ -479,11 +483,11 @@ export class DatabaseStorage implements IStorage {
 
   async markNotificationsAsRead(userId: number, notificationIds: number[]): Promise<void> {
     if (notificationIds.length === 0) return;
-    await db.update(notifications).set({ isRead: true }).where(and(eq(notifications.userId, userId), or(...notificationIds.map(id => eq(notifications.id, id)))));
+    await db.update(notifications).set({ isRead: true }).where(and(eq(notifications.userId, userId), inArray(notifications.id, notificationIds)));
   }
 
-  async createNotification(userId: number, message: string, link: string): Promise<void> {
-    await db.insert(notifications).values({ userId, message, link });
+  async createNotification(notification: InsertNotification): Promise<void> {
+    await db.insert(notifications).values(notification);
   }
 }
 

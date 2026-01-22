@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useRoute } from "wouter";
+import { Link, Route, useRoute } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { api } from "@shared/routes";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
-import ChatView from "@/components/ChatView";
+import ChatView from "./ChatView";
 import { User } from "@shared/schema";
 
 // This type should reflect what the backend API returns for a conversation list

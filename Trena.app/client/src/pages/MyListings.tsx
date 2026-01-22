@@ -7,11 +7,12 @@ import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 
 const getMyListings = async () => {
-  const response = await fetch(api.users.me.products.path);
+  const response = await fetch(api.users.products.path);
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
-  return response.json() as Promise<Product[]>;
+  const data = await response.json();
+  return data.products as Product[];
 };
 
 const deleteProduct = async (id: number) => {
