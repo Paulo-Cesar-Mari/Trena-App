@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Hammer, PaintBucket, Wrench, Lightbulb, Droplets, HardHat, ArrowRight } from "lucide-react";
+import { Search, Hammer, PaintBucket, Wrench, Lightbulb, Droplets, HardHat, ArrowRight, ListChecks, MessageCircle } from "lucide-react";
 import { useProducts } from "@/hooks/use-products";
 import { useServices } from "@/hooks/use-services";
 import { ProductCard } from "@/components/ProductCard";
@@ -13,6 +13,24 @@ const CATEGORIES = [
   { id: "eletrica", name: "Elétrica", icon: Lightbulb },
   { id: "hidraulica", name: "Hidráulica", icon: Droplets },
   { id: "servicos", name: "Mão de Obra", icon: HardHat },
+];
+
+const QUICK_STEPS = [
+  {
+    title: "Busque o que precisa",
+    description: "Use a busca ou escolha uma categoria para começar rápido.",
+    icon: Search,
+  },
+  {
+    title: "Compare opções",
+    description: "Veja preços, localização e avaliações em um só lugar.",
+    icon: ListChecks,
+  },
+  {
+    title: "Contate e feche",
+    description: "Fale direto pelo WhatsApp e resolva sua obra com confiança.",
+    icon: MessageCircle,
+  },
 ];
 
 export default function Home() {
@@ -65,6 +83,47 @@ export default function Home() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 space-y-10">
+        <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">Fluxo rápido</p>
+              <h2 className="text-2xl font-bold text-gray-900 mt-2">
+                Do primeiro clique ao contato em minutos
+              </h2>
+              <p className="text-sm text-gray-500 mt-2 max-w-xl">
+                Simplificamos o caminho para você encontrar materiais e profissionais confiáveis, sem perder tempo.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/buscar">
+                <button className="px-5 py-2.5 rounded-full bg-secondary text-white text-sm font-semibold hover:brightness-110 transition-all">
+                  Buscar materiais
+                </button>
+              </Link>
+              <Link href="/servicos">
+                <button className="px-5 py-2.5 rounded-full bg-primary text-secondary text-sm font-semibold hover:brightness-105 transition-all">
+                  Encontrar profissionais
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {QUICK_STEPS.map((step, index) => (
+              <div key={step.title} className="bg-gray-50/80 border border-gray-100 rounded-2xl p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-secondary font-bold shadow-sm">
+                    {index + 1}
+                  </span>
+                  <step.icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-900">{step.title}</h3>
+                <p className="text-xs text-gray-500 mt-1">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Categories */}
         <section>
           <div className="flex justify-between items-center mb-4">

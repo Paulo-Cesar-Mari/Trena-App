@@ -77,7 +77,7 @@ export async function seedDatabase() {
   }
 
   // --- 3. GERAR SERVIÇOS ---
-  const providers = createdUsers.filter(u => u.role === 'provider');
+  const providers = createdUsers.filter(u => u.role === 'professional');
   const serviceTypes = [
     "Pedreiro", "Eletricista", "Encanador", "Pintor", "Gesseiro", "Marceneiro",
     "Serralheiro", "Vidraceiro", "Arquiteto", "Engenheiro Civil", "Mestre de Obras",
