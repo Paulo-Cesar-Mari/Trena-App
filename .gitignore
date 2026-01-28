@@ -1,6 +1,14 @@
-node_modules
-dist
+# Dependências
+node_modules/
+
+# Build
+dist/
+build/
+
+# Variáveis de Ambiente (MUITO IMPORTANTE - Protege suas senhas)
+.env
+.env.*
+
+# Logs e arquivos do sistema
+*.log
 .DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
