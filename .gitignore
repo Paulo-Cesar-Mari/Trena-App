@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependências
 node_modules/
 
@@ -12,3 +13,7 @@ build/
 # Logs e arquivos do sistema
 *.log
 .DS_Store
+=======
+node_modules
+*.log
+>>>>>>> 435b7052599ba7a0b5880a214ab38966608f84de

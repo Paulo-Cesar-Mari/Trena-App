@@ -1,0 +1,106 @@
+import { Link, useLocation } from "wouter";
+import { Home, Search, PlusCircle, User, HardHat, MessageSquare, Bell } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useNotifications } from "@/hooks/use-notifications";
+
+export function BottomNav() {
+  const [location] = useLocation();
+    const { unreadCount } = useNotifications();
+
+  const NavItem = ({ href, icon: Icon, label, className, badge }: { href: string; icon: any; label: string, className?: string, badge?: number }) => {
+    const isActive = location === href;
+    return (
+      <Link href={href} className={cn("flex-1", className)}>
+        <div className={cn(
+          "flex flex-col items-center justify-center space-y-1 w-full h-full py-2 px-1 cursor-pointer transition-colors duration-200 relative",
+          isActive ? "text-primary" : "text-gray-400 hover:text-gray-600"
+        )}>
+            {badge && badge > 0 && (
+                <div className="absolute top-1 right-3 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {badge}
+                </div>
+            )}
+          <Icon className={cn("w-6 h-6", isActive && "fill-current")} strokeWidth={isActive ? 2.5 : 2} />
+          <span className="text-[10px] font-medium">{label}</span>
+        </div>
+      </Link>
+    );
+  };
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-nav pb-safe md:hidden">
+      <div className="flex justify-around items-center h-16 max-w-md mx-auto">
+        <NavItem href="/" icon={Home} label="Início" />
+        <NavItem href="/buscar" icon={Search} label="Buscar" />
+        <div className="flex-1 flex justify-center items-center">
+            <div className="relative -top-5">
+              <Link href="/anunciar">
+                <div className="bg-primary text-secondary p-3 rounded-full shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-transform cursor-pointer border-4 border-white dark:border-gray-800">
+                  <PlusCircle className="w-7 h-7" strokeWidth={2.5} />
+                </div>
+              </Link>
+            </div>
+        </div>
+        <NavItem href="/inbox" icon={MessageSquare} label="Mensagens" />
+        <NavItem href="/notifications" icon={Bell} label="Notificações" badge={unreadCount} />
+      </div>
+    </nav>
+  );
+}
+
+export function DesktopHeader() {
+  const [location] = useLocation();
+  const { unreadCount } = useNotifications();
+
+  return (
+    <header className="hidden md:block sticky top-0 z-50 bg-secondary text-white shadow-md">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <Link href="/">
+          <div className="flex items-center space-x-3 cursor-pointer">
+            <img 
+              src="/logo-trena.png" 
+              alt="TRENA Logo" 
+              className="h-14 w-14 object-contain" 
+            />
+            <span className="text-3xl font-bold tracking-tighter font-['Poppins']">
+              Trena
+            </span>
+          </div>
+        </Link>
+
+        <nav className="flex items-center space-x-8">
+          <Link href="/">
+            <span className={cn("text-sm font-medium hover:text-primary transition-colors cursor-pointer", location === "/" && "text-primary")}>Início</span>
+          </Link>
+          <Link href="/buscar">
+            <span className={cn("text-sm font-medium hover:text-primary transition-colors cursor-pointer", location === "/buscar" && "text-primary")}>Produtos</span>
+          </Link>
+          <Link href="/servicos">
+            <span className={cn("text-sm font-medium hover:text-primary transition-colors cursor-pointer", location === "/servicos" && "text-primary")}>Serviços</span>
+          </Link>
+          <Link href="/inbox">
+            <span className={cn("text-sm font-medium hover:text-primary transition-colors cursor-pointer", location === "/inbox" && "text-primary")}>Mensagens</span>
+          </Link>
+        </nav>
+
+        <div className="flex items-center space-x-4">
+          <Link href="/anunciar">
+            <button className="bg-primary text-secondary px-5 py-2 rounded-lg text-sm font-bold hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+              Anunciar
+            </button>
+          </Link>
+          <Link href="/notifications">
+            <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
+                <Bell className="w-5 h-5 text-white" />
+            </div>
+          </Link>
+          <Link href="/perfil">
+            <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
+              <User className="w-5 h-5 text-white" />
+            </div>
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
