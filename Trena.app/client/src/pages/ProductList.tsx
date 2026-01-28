@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, SlidersHorizontal, PackageOpen } from "lucide-react";
 import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/ProductCard";
@@ -14,11 +14,26 @@ const defaultFilters = {
 export default function ProductList() {
   const [location] = useLocation();
   const searchParams = new URLSearchParams(window.location.search);
+  const initialSearch = searchParams.get("search") || "";
   const initialCategory = searchParams.get("category") || "";
+  const initialLocation = searchParams.get("location") || "";
   
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
   const [category, setCategory] = useState(initialCategory);
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState({
+    ...defaultFilters,
+    location: initialLocation || defaultFilters.location,
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setSearch(params.get("search") || "");
+    setCategory(params.get("category") || "");
+    setFilters((prev) => ({
+      ...prev,
+      location: params.get("location") || prev.location,
+    }));
+  }, [location]);
   
   const { data: products, isLoading } = useProducts({ 
     search: search || undefined, 
